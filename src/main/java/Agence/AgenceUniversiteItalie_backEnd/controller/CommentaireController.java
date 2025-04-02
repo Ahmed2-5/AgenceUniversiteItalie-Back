@@ -32,6 +32,11 @@ public class CommentaireController {
     }
 
 
+    /**
+     *
+     * @param tacheId
+     * @return all commentes related to the taches
+     */
 
     @GetMapping("/tache/{tacheId}")
     public ResponseEntity<?> GetCommentsByTache(@PathVariable Long tacheId){
@@ -59,9 +64,5 @@ public class CommentaireController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-
-
-
 
 }
