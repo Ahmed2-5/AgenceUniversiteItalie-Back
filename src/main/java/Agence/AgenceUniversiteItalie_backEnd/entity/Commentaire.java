@@ -16,9 +16,10 @@ public class Commentaire {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idCommentaire;
 
+    @Column(length = 1000)
     private String contenu;
 
-    private LocalDateTime dateCreationCommentaire = LocalDateTime.now();
+    private LocalDateTime dateCreationCommentaire ;
 
     @ManyToOne
     @JoinColumn(name = "tache_id", nullable = false)
@@ -32,5 +33,10 @@ public class Commentaire {
         this.contenu = contenu;
         this.tache = tache;
         this.utilisateur = utilisateur;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.dateCreationCommentaire = LocalDateTime.now();
     }
 }
