@@ -44,22 +44,7 @@ public class CommentaireController {
     }
 
 
-    /**
-     *
-     * @param commentId
-     * @param userEmail
-     * @return delete commentaire.
-     */
-    @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> deletComment(@PathVariable Long commentId,
-                                          @RequestParam String userEmail){
-        try {
-            commentaireService.deleteComment(commentId,userEmail);
-            return ResponseEntity.ok("comment deleted successfuly");
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
+
 
 
 }
