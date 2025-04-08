@@ -218,7 +218,17 @@ public class TacheServie {
     public long getTasksDone() {
         return tacheRepository.countTasksDone();
     }
+    
+    public long countAllTasksAssignedByUser(Long userId) {
+        return tacheRepository.countAllTasksAssignedByUser(userId);
+    }
 
+    public long countTasksEnCoursByUser(Long userId) {
+        return tacheRepository.countTasksEnCoursByUser(userId);
+    }
 
+    public long countTasksDoneByUser(Long userId) {
+        return tacheRepository.countTasksDoneByUser(userId);
+    }
 
 }
