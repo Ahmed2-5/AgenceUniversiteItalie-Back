@@ -171,5 +171,21 @@ public class TacheController {
     public long countTasksDone() {
         return tacheService.getTasksDone();
     }
+    
+    @GetMapping("/countAllTasksAssignedByUser/{userID}")
+    public long countAllTasksAssignedByUser(@PathVariable Long userID) {
+        return tacheService.countAllTasksAssignedByUser(userID);
+    }
+
+    @GetMapping("/countTasksEnCoursByUser/{userID}")
+    public long countTasksEnCoursByUser(@PathVariable Long userID) {
+        return tacheService.countTasksEnCoursByUser(userID);
+    }
+
+    @GetMapping("/countTasksDoneByUser/{userID}")
+    public long countTasksDoneByUser(@PathVariable Long userID) {
+        return tacheService.countTasksDoneByUser(userID);
+    }
+
 
 }

@@ -85,7 +85,13 @@ public class SecurityConfig {
                             "/api/Taches/getUserTakedByIdtask/**",
                             "/api/Taches/countAll",
                             "/api/Taches/countEnCours",
-                            "/api/Taches/countDone"
+                            "/api/Taches/countDone",
+                            "/api/Taches/countAllTasksAssignedByUser/**",
+                            "/api/Taches/countTasksEnCoursByUser/**",
+                            "/api/Taches/countTasksDoneByUser/**",
+                            "/api/commentaire/addCommentaire",
+                            "/api/commentaire/tache/**",
+                            "/api/commentaire/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

@@ -23,4 +23,12 @@ public interface TacheRepository extends JpaRepository<Tache,Long>   {
     @Query("SELECT COUNT(t) FROM Tache t WHERE t.status = 'DONE'")
     long countTasksDone();
 
+    @Query("SELECT COUNT(t) FROM Tache t JOIN t.assignedAdmins a WHERE a.idUtilisateur = :userId")
+    long countAllTasksAssignedByUser(Long userId);
+
+    @Query("SELECT COUNT(t) FROM Tache t JOIN t.assignedAdmins a WHERE a.idUtilisateur = :userId AND t.status = 'EN_COURS'")
+    long countTasksEnCoursByUser(Long userId);
+
+    @Query("SELECT COUNT(t) FROM Tache t JOIN t.assignedAdmins a WHERE a.idUtilisateur = :userId AND t.status = 'DONE'")
+    long countTasksDoneByUser(Long userId);
 }
