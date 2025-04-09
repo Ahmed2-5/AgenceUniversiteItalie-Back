@@ -73,6 +73,14 @@ public class Utilisateur {
     @JsonIgnore
     private Set<Commentaire> commentaires = new HashSet<>();
 
+    @OneToMany(mappedBy = "ajouterPar", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<Document> documentAdded = new HashSet<>();
+
+    @OneToMany(mappedBy = "clientCreatedby")
+    @JsonIgnore
+    private Set<Clients> clientsCreated=new HashSet<>();
+
     // ajout d'un constructeur
     public Utilisateur(String nom, String prenom, String adresseMail, String motDePasse, Role role) {
         this.nom = nom;

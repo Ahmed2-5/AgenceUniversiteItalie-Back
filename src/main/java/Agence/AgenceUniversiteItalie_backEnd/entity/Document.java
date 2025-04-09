@@ -23,7 +23,12 @@ public class Document {
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
-    private Clients client;
+    private Clients clientDocument;
+
+
+    @ManyToOne
+    @JoinColumn(name = "ajouter_par_id", nullable = false)
+    private Utilisateur ajouterPar;
 
 
     @PrePersist
@@ -31,10 +36,11 @@ public class Document {
         this.dateAjout = LocalDateTime.now();
     }
 
-    public Document(String nom, String cheminFichier, Clients client) {
+    public Document(String nom, String cheminFichier, Clients client, Utilisateur ajouterPar) {
         this.nom = nom;
         this.cheminFichier = cheminFichier;
-        this.client = client;
+        this.clientDocument = client;
+        this.ajouterPar=ajouterPar;
     }
 
 

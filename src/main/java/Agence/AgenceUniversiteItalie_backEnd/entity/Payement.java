@@ -15,13 +15,17 @@ public class Payement {
     private int idPayement;
 
     private int montantaPayer;
-    private int resteAPayer=0;
+    private int resteaPayer=0;
     private int tranches;
 
 
+    @Enumerated(EnumType.STRING)
+    private StatusPaiment statusPaiment=StatusPaiment.EN_ATTENTE;
 
-    @OneToOne
-    @JoinColumn(name = "Client_id")
+
+
+    @ManyToOne
+    @JoinColumn(name = "Client_id", nullable = false)
     private Clients clients;
 
 

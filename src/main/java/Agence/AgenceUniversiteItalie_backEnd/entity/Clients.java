@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -36,8 +38,18 @@ public class Clients {
     private Archive archive;
 
 
-    @OneToOne(mappedBy = "clients", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Payement payementClient;
+    @ManyToOne
+    @JoinColumn(name = "created_by_id")
+    private Utilisateur clientCreatedby;
+
+
+    @OneToMany(mappedBy = "clients", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Payement> payementClient =new ArrayList<>();
+
+    @OneToMany(mappedBy = "clientDocument", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Document> documents=new ArrayList<>();
+
+
 
 
 

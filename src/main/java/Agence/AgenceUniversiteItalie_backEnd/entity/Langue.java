@@ -4,5 +4,6 @@ public enum Langue {
     ITALIEN,
     FRANCAIS,
     ANGLAIS,
-    ALLEMAND
+    ALLEMAND,
+    AUTRE
 }
