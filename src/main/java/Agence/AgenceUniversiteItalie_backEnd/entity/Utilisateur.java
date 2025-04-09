@@ -77,7 +77,7 @@ public class Utilisateur {
     @JsonIgnore
     private Set<Document> documentAdded = new HashSet<>();
 
-    @OneToMany(mappedBy = "clientCreatedby")
+    @OneToMany(mappedBy = "clientCreatedby",cascade = {CascadeType.MERGE , CascadeType.PERSIST})
     @JsonIgnore
     private Set<Clients> clientsCreated=new HashSet<>();
 
