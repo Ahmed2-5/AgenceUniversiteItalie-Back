@@ -1,10 +1,7 @@
 package Agence.AgenceUniversiteItalie_backEnd.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,9 +29,15 @@ public class Clients {
 
     private LocalDate dateNaissanceClient;
 
+    @Enumerated(EnumType.STRING)
     private Langue langue;
 
+    @Enumerated(EnumType.STRING)
     private Archive archive;
+
+
+    @OneToOne(mappedBy = "clients", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Payement payementClient;
 
 
 
