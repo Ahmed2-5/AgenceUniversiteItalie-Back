@@ -1,10 +1,7 @@
 package Agence.AgenceUniversiteItalie_backEnd.service;
 
 
-import Agence.AgenceUniversiteItalie_backEnd.entity.Archive;
-import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
-import Agence.AgenceUniversiteItalie_backEnd.entity.EnumRole;
-import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
+import Agence.AgenceUniversiteItalie_backEnd.entity.*;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClientsService {
@@ -71,6 +71,18 @@ public class ClientsService {
 
     /**
      *
+     * @param idC
+     * Delete a client
+     */
+    public void deleteClient(Long idC){
+        Clients clientSupp = clientsRepository.findById(idC)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"le client n'est pas trouver "));
+
+        clientsRepository.delete(clientSupp);
+    }
+
+    /**
+     *
      * @param idClient
      * @return archiver un clients
      */
@@ -79,10 +91,73 @@ public class ClientsService {
         Clients client = clientsRepository.findById(idClient)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"ce Client est n'est pas trouver"));
 
-        // manque d'une
+        if (client.getArchive() == Archive.ARCHIVER){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"ce client est deja archiver");
+        }
+
         client.setArchive(Archive.ARCHIVER);
         return clientsRepository.save(client);
     }
+
+    /**
+     *
+     * @param idClient
+     * @return Non-Archiver client
+     */
+    @Transactional
+    public Clients nonArchiver(Long idClient){
+        Clients clientArchiver = clientsRepository.findById(idClient)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Client not found"));
+
+        if (clientArchiver.getArchive() == Archive.NON_ARCHIVER){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST," ce client est deja Non archiver");
+        }
+
+        clientArchiver.setArchive(Archive.NON_ARCHIVER);
+        return clientsRepository.save(clientArchiver);
+    }
+
+
+    public List<Clients> getAllClients(){
+        return clientsRepository.findAll();
+    }
+
+    public Clients findClientById(Long idClient){
+        return clientsRepository.findById(idClient)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Le client n'est pas trouver"));
+    }
+
+    public List<Clients> getNonArchiveClients(){
+        return clientsRepository.findByArchive(Archive.NON_ARCHIVER);
+    }
+
+    public List<Clients> getArchivedClients(){
+        return clientsRepository.findByArchive(Archive.ARCHIVER);
+    }
+
+    public List<Clients> getClientsByCreator(Long idUtilisateur){
+        Utilisateur idAdmin = utilisateurRepository.findById(idUtilisateur)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"l'Admin ou le Super Admin n'est pas trouver"));
+
+        return clientsRepository.findByCreatedBy_IdUtilisateur(idAdmin);
+    }
+
+    public List<Clients> searchClient(String searchTerm){
+        return clientsRepository.searchClients(searchTerm);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
