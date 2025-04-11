@@ -7,20 +7,22 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
+
 
 public interface ClientsRepository extends JpaRepository<Clients, Long> {
 
     List<Clients> findByArchive(Archive archive);
 
-    List<Clients> findByCreatedBy_IdUtilisateur(Utilisateur idUtilisateur);
+    List<Clients> findClientsByClientCreatedby(Utilisateur idUtilisateur);
 
-    List<Clients> findByCreatedBy_EmailAdmin(Utilisateur emailAdmin);
+    List<Clients> findClientsByAssignedTo(Utilisateur adresseMail);
 
-    Optional<Clients> findByEmailClient(String email);
+    //List<Clients> findByCreatedBy_EmailAdmin(Utilisateur emailAdmin);
 
-    Optional<Clients> findClientsByPrenomClient(String prenomClient);
+    //Optional<Clients> findByEmailClient(String email);
 
-    @Query("SELECT client FROM Clients WHERE LOWER(client.nomClient) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(client.prenomClient) LIKE LOWER(CONCAT('%', :searchTerm, '%')) ")
+    //Optional<Clients> findClientsByPrenomClient(String prenomClient);
+
+    @Query("SELECT client FROM Clients client WHERE LOWER(client.nomClient) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(client.prenomClient) LIKE LOWER(CONCAT('%', :searchTerm, '%')) ")
     List<Clients> searchClients(String searchTerm);
 }

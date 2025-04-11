@@ -29,9 +29,10 @@ public class ClientsService {
      * @param clients
      * @param adminEmail
      * @return Create a client pour gerer ses dossiers et tous
+     *
      */
     @Transactional
-    public Clients clientsCreated(Clients clients, String adminEmail){
+    public Clients clientsCreated(Clients clients, String adminEmail,String AdminAssigned){
 
         Utilisateur createur = utilisateurRepository.findByAdresseMail(adminEmail)
                 .orElseThrow(()-> new EntityNotFoundException("SuperAdmin or Admin with this email" +adminEmail+"is not found"));
@@ -40,7 +41,11 @@ public class ClientsService {
            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Only Super Admin or Admin can create Clients");
        }
 
+       Utilisateur admin = utilisateurRepository.findByAdresseMail(AdminAssigned)
+                       .orElseThrow(()-> new EntityNotFoundException("Admin not found with this adressMail"+AdminAssigned));
+
        clients.setClientCreatedby(createur);
+       clients.setAssignedTo(admin);
        return clientsRepository.save(clients);
     }
 
@@ -65,6 +70,7 @@ public class ClientsService {
         clients.setCodePostale(clients.getCodePostale());
         clients.setDateNaissanceClient(clientDetails.getDateNaissanceClient());
         clients.setLangue(clientDetails.getLangue());
+        clients.setAssignedTo(clientDetails.getAssignedTo());
 
         return clientsRepository.save(clients);
     }
@@ -139,7 +145,15 @@ public class ClientsService {
         Utilisateur idAdmin = utilisateurRepository.findById(idUtilisateur)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"l'Admin ou le Super Admin n'est pas trouver"));
 
-        return clientsRepository.findByCreatedBy_IdUtilisateur(idAdmin);
+        return clientsRepository.findClientsByClientCreatedby(idAdmin);
+    }
+
+    public List<Clients> getClientByAssignedTo(String adresseMail){
+
+        Utilisateur adminEmail = utilisateurRepository.findByAdresseMail(adresseMail)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND," l'admin est introvable"));
+        return clientsRepository.findClientsByAssignedTo(adminEmail);
+
     }
 
     public List<Clients> searchClient(String searchTerm){

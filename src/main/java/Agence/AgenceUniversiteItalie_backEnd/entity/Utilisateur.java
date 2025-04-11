@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -80,6 +81,9 @@ public class Utilisateur {
     @OneToMany(mappedBy = "clientCreatedby",cascade = {CascadeType.MERGE , CascadeType.PERSIST})
     @JsonIgnore
     private Set<Clients> clientsCreated=new HashSet<>();
+
+    @OneToMany(mappedBy = "assignedTo",cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    private List<Clients> clientsAssigned;
 
     // ajout d'un constructeur
     public Utilisateur(String nom, String prenom, String adresseMail, String motDePasse, Role role) {

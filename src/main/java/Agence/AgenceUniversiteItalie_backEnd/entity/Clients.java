@@ -35,22 +35,21 @@ public class Clients {
     private Langue langue;
 
     @Enumerated(EnumType.STRING)
-    private Archive archive;
+    private Archive archive = Archive.NON_ARCHIVER;
 
 
     @ManyToOne
     @JoinColumn(name = "created_by_id")
     private Utilisateur clientCreatedby;
 
+    @ManyToOne
+    @JoinColumn(name = "assigned_to")
+    private Utilisateur assignedTo;
 
     @OneToMany(mappedBy = "clients", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payement> payementClient =new ArrayList<>();
 
     @OneToMany(mappedBy = "clientDocument", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Document> documents=new ArrayList<>();
-
-
-
-
 
 }
