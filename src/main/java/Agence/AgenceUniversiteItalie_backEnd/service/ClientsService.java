@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class ClientsService {
@@ -144,21 +144,27 @@ public class ClientsService {
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Le client n'est pas trouver"));
     }
 
+    //get client eli mahomech archiver
     public List<Clients> getNonArchiveClients(){
         return clientsRepository.findByArchive(Archive.NON_ARCHIVER);
     }
+
 
     public List<Clients> getArchivedClients(){
         return clientsRepository.findByArchive(Archive.ARCHIVER);
     }
 
-    public List<Clients> getClientsByCreator(Long idUtilisateur){
-        Utilisateur idAdmin = utilisateurRepository.findById(idUtilisateur)
+
+    //Admin eli aamal el creation mtaa el client
+    public List<Clients> getClientsByCreator(String AdressMail){
+        Utilisateur idAdmin = utilisateurRepository.findByAdresseMail(AdressMail)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"l'Admin ou le Super Admin n'est pas trouver"));
 
         return clientsRepository.findClientsByClientCreatedby(idAdmin);
     }
 
+
+    //Admin eli lehi bel client
     public List<Clients> getClientByAssignedTo(String adresseMail){
 
         Utilisateur adminEmail = utilisateurRepository.findByAdresseMail(adresseMail)
@@ -167,6 +173,8 @@ public class ClientsService {
 
     }
 
+
+    //Search lel client bel nom et prenom
     public List<Clients> searchClient(String searchTerm){
         return clientsRepository.searchClients(searchTerm);
     }

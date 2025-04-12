@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Payement {
 
+    // Ajout d'un class de tranche pour avoir la possibilite de plusieur tranche avec leur ID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idPayement;

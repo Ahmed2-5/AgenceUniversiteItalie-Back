@@ -13,7 +13,7 @@ public interface ClientsRepository extends JpaRepository<Clients, Long> {
 
     List<Clients> findByArchive(Archive archive);
 
-    List<Clients> findClientsByClientCreatedby(Utilisateur idUtilisateur);
+    List<Clients> findClientsByClientCreatedby(Utilisateur adressMail);
 
     List<Clients> findClientsByAssignedTo(Utilisateur adresseMail);
 
