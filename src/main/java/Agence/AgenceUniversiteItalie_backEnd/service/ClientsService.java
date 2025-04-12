@@ -56,7 +56,7 @@ public class ClientsService {
      * @return Updating the Clients Details
      */
     @Transactional
-    public Clients updateClient(Long idClient, Clients clientDetails){
+    public Clients updateClient(Clients clientDetails ,Long idClient){
 
         Clients clients = clientsRepository.findById(idClient)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"client not found"));
@@ -65,9 +65,9 @@ public class ClientsService {
         clients.setPrenomClient((clientDetails.getPrenomClient()));
         clients.setEmailClient(clientDetails.getEmailClient());
         clients.setAdresseClient(clientDetails.getAdresseClient());
-        clients.setVilleClient(clients.getVilleClient());
-        clients.setTelephoneClient(clients.getTelephoneClient());
-        clients.setCodePostale(clients.getCodePostale());
+        clients.setVilleClient(clientDetails.getVilleClient());
+        clients.setTelephoneClient(clientDetails.getTelephoneClient());
+        clients.setCodePostale(clientDetails.getCodePostale());
         clients.setDateNaissanceClient(clientDetails.getDateNaissanceClient());
         clients.setLangue(clientDetails.getLangue());
         clients.setAssignedTo(clientDetails.getAssignedTo());

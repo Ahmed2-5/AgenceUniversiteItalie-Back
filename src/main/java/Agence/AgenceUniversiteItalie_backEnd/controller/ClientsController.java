@@ -2,6 +2,7 @@ package Agence.AgenceUniversiteItalie_backEnd.controller;
 
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Tache;
 import Agence.AgenceUniversiteItalie_backEnd.service.ClientsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,13 @@ public class ClientsController {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+
+    @PutMapping(value = "/UpdateClients/{idClient}")
+    public Clients updateClient(@RequestBody Clients clientDetails,
+                                          @PathVariable Long idClient){
+        return clientsService.updateClient(clientDetails,idClient);
     }
 
 
