@@ -70,7 +70,7 @@ public class ClientsService {
         clients.setCodePostale(clientDetails.getCodePostale());
         clients.setDateNaissanceClient(clientDetails.getDateNaissanceClient());
         clients.setLangue(clientDetails.getLangue());
-        clients.setAssignedTo(clientDetails.getAssignedTo());
+        if(clientDetails.getAssignedTo() !=null){ clients.setAssignedTo(clientDetails.getAssignedTo());}
 
         return clientsRepository.save(clients);
     }
@@ -80,9 +80,20 @@ public class ClientsService {
      * @param idC
      * Delete a client
      */
-    public void deleteClient(Long idC){
+    public void deleteClient(Long idC, String SuperAdminEmail){
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(SuperAdminEmail)
+                .orElseThrow(()-> new EntityNotFoundException("SuperAdmin or Admin with this email" +SuperAdminEmail+"is not found"));
+
         Clients clientSupp = clientsRepository.findById(idC)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"le client n'est pas trouver "));
+
+    boolean AdminCreator = admin.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN);
+    boolean isAssignedTo = clientSupp.getAssignedTo().getIdUtilisateur().equals(admin.getIdUtilisateur());
+
+    if (!isAssignedTo && !AdminCreator){
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Only Super Admin or Admin can create Clients");
+    }
+
 
         clientsRepository.delete(clientSupp);
     }

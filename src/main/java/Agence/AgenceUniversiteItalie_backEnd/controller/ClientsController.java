@@ -42,8 +42,11 @@ public class ClientsController {
         return clientsService.updateClient(clientDetails,idClient);
     }
 
-
-
-
+    @DeleteMapping("/deleteClient/{idC}")
+    public ResponseEntity<?> deleteClient(@PathVariable Long idC,
+                                          @RequestParam String adminEmail){
+        clientsService.deleteClient(idC,adminEmail);
+        return ResponseEntity.ok("Client deleted successfully");
+    }
 
 }
