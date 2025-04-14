@@ -8,14 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/documents")
@@ -44,6 +43,46 @@ public class DocumentController {
         }
     }
 
+    @GetMapping("/Client/Documents")
+    public ResponseEntity<List<Document>> getDocumentByClients(@PathVariable Long idClient){
+        try {
+            return ResponseEntity.ok(documentService.getDocumentByClient(idClient));
+        }catch (EntityNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @GetMapping("/{idDocument}")
+    public ResponseEntity<Document> getDocumentById(@PathVariable Long idDocument){
+        try {
+            return ResponseEntity.ok(documentService.getDocumentById(idDocument));
+        }catch (EntityNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }
+    }
+
+    @PatchMapping("{idDocument}/rename")
+    public ResponseEntity<Document> renameDocument(@PathVariable Long idDocument,
+                                                   @RequestParam String nouveauNom){
+        try {
+            return ResponseEntity.ok(documentService.updateDocument(idDocument,nouveauNom));
+        }catch (EntityNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{idDocument}")
+    public ResponseEntity<Map<String,String>> deleteDocument(@PathVariable Long idDocument){
+        try {
+            documentService.deleteDocument(idDocument);
+            return ResponseEntity.ok(Map.of("message","Document deleted Successfully"));
+        }catch (EntityNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
+        }catch (IOException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "failed to delete this document:"+ e.getMessage());
+        }
+    }
 
 
 

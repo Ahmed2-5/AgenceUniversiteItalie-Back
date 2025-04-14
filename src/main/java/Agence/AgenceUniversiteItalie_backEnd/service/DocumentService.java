@@ -105,6 +105,23 @@ public class DocumentService {
         return documentRepository.save(document);
     }
 
+    @Transactional
+    public void deleteDocument(Long idDocument) throws IOException{
+
+        Document document = documentRepository.findById(idDocument).orElse(null);
+
+        Path filePath = Paths.get(document.getCheminFichier());
+        Files.deleteIfExists(filePath);
+
+        documentRepository.delete(document);
+    }
+
+    // A ne pas utiliser pour le moments sauf si le client a demander pour une suivit complet.
+    public List<Document> getAllDocuments(){
+        return documentRepository.findAll();
+    }
+
+
 
 
 
