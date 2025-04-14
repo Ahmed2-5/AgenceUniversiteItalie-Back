@@ -91,7 +91,12 @@ public class SecurityConfig {
                             "/api/Taches/countTasksDoneByUser/**",
                             "/api/commentaire/addCommentaire",
                             "/api/commentaire/tache/**",
-                            "/api/commentaire/**"
+                            "/api/commentaire/**",
+                            "/api/Clients/CreateClient",
+                            "/api/Clients/UpdateClients/**",
+                            "/api/Clients/deleteClient/**",
+                            "/api/Clients/AllClients",
+                            "/api/Clients/getclientById/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

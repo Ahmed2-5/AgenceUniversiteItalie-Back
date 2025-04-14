@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -33,6 +35,11 @@ public class Clients {
 
     @Enumerated(EnumType.STRING)
     private Langue langue;
+    
+    @Enumerated(EnumType.STRING)
+    private EnumTypeService service;
+    
+    private String reference;
 
     @Enumerated(EnumType.STRING)
     private Archive archive = Archive.NON_ARCHIVER;
@@ -47,9 +54,11 @@ public class Clients {
     private Utilisateur assignedTo;
 
     @OneToMany(mappedBy = "clients", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Payement> payementClient =new ArrayList<>();
 
     @OneToMany(mappedBy = "clientDocument", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Document> documents=new ArrayList<>();
 
 }
