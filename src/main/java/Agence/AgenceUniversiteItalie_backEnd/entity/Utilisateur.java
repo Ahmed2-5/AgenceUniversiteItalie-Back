@@ -83,6 +83,7 @@ public class Utilisateur {
     private Set<Clients> clientsCreated=new HashSet<>();
 
     @OneToMany(mappedBy = "assignedTo",cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JsonIgnore
     private List<Clients> clientsAssigned;
 
     // ajout d'un constructeur

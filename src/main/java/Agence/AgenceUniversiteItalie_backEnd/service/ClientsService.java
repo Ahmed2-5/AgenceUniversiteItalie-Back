@@ -70,6 +70,9 @@ public class ClientsService {
         clients.setCodePostale(clientDetails.getCodePostale());
         clients.setDateNaissanceClient(clientDetails.getDateNaissanceClient());
         clients.setLangue(clientDetails.getLangue());
+        clients.setService(clientDetails.getService());
+        clients.setReference(clientDetails.getReference());
+
         if(clientDetails.getAssignedTo() !=null){ clients.setAssignedTo(clientDetails.getAssignedTo());}
 
         return clientsRepository.save(clients);
