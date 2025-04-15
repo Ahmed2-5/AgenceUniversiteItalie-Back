@@ -76,7 +76,7 @@ public class Utilisateur {
 
     @OneToMany(mappedBy = "ajouterPar", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<Document> documentAdded = new HashSet<>();
+    private Set<ClientDocument> documentAdded = new HashSet<>();
 
     @OneToMany(mappedBy = "clientCreatedby",cascade = {CascadeType.MERGE , CascadeType.PERSIST})
     @JsonIgnore

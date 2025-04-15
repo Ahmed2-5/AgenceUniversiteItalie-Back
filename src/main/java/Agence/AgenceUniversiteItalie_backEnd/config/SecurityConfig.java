@@ -48,7 +48,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(request -> {
                 CorsConfiguration config = new CorsConfiguration();
                 config.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Autorise Angular
-                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                 config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
                 config.setAllowCredentials(true);
                 return config;
@@ -96,7 +96,10 @@ public class SecurityConfig {
                             "/api/Clients/UpdateClients/**",
                             "/api/Clients/deleteClient/**",
                             "/api/Clients/AllClients",
-                            "/api/Clients/getclientById/**"
+                            "/api/Clients/getclientById/**",
+                            "/api/documents/Client/Documents/**",
+                            "/api/documents/**",
+                            "/api/documents/rename/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

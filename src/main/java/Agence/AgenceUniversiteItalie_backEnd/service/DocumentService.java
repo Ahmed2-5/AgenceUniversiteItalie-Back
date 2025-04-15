@@ -1,8 +1,8 @@
 package Agence.AgenceUniversiteItalie_backEnd.service;
 
 
+import Agence.AgenceUniversiteItalie_backEnd.entity.ClientDocument;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
-import Agence.AgenceUniversiteItalie_backEnd.entity.Document;
 import Agence.AgenceUniversiteItalie_backEnd.entity.EnumRole;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
@@ -41,12 +41,12 @@ public class DocumentService {
     private String uploadDir;
 
 
-    public Document getDocumentById(Long idDocument){
+    public ClientDocument getDocumentById(Long idDocument){
         return documentRepository.findById(idDocument).
                 orElseThrow(()->new EntityNotFoundException("Documents not found whith this id"+idDocument));
     }
 
-    public List<Document> getDocumentByClient(Long idClient){
+    public List<ClientDocument> getDocumentByClient(Long idClient){
         return documentRepository.findByClientDocument_IdClients(idClient);
     }
 
@@ -60,7 +60,7 @@ public class DocumentService {
      * @throws IOException
      */
     @Transactional
-    public Document uploadDocument(MultipartFile file , String nom , Long idClient, Long idUtilisateur)throws IOException{
+    public ClientDocument uploadDocument(MultipartFile file , String nom , Long idClient, Long idUtilisateur)throws IOException{
         Clients clients = clientsRepository.findById(idClient)
                 .orElseThrow(()-> new EntityNotFoundException("Cllient not found with this id:"+idClient));
 
@@ -85,7 +85,7 @@ public class DocumentService {
         Path filePath = uploadPath.resolve(uniqueFileName);
         Files.copy(file.getInputStream(),filePath);
 
-        Document document = new Document();
+        ClientDocument document = new ClientDocument();
         document.setNom(nom);
         document.setCheminFichier(clientDir + "/" +uniqueFileName );
         document.setClientDocument(clients);
@@ -98,8 +98,8 @@ public class DocumentService {
 
 
     @Transactional
-    public Document updateDocument(Long idDoc, String nouveauNom){
-        Document document= documentRepository.findById(idDoc).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"le document n'est pas trouver"));
+    public ClientDocument updateDocument(Long idDoc, String nouveauNom){
+    	ClientDocument document= documentRepository.findById(idDoc).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"le document n'est pas trouver"));
 
         document.setNom(nouveauNom);
         return documentRepository.save(document);
@@ -108,7 +108,7 @@ public class DocumentService {
     @Transactional
     public void deleteDocument(Long idDocument) throws IOException{
 
-        Document document = documentRepository.findById(idDocument).orElse(null);
+    	ClientDocument document = documentRepository.findById(idDocument).orElse(null);
 
         Path filePath = Paths.get(document.getCheminFichier());
         Files.deleteIfExists(filePath);
@@ -117,7 +117,7 @@ public class DocumentService {
     }
 
     // A ne pas utiliser pour le moments sauf si le client a demander pour une suivit complet.
-    public List<Document> getAllDocuments(){
+    public List<ClientDocument> getAllDocuments(){
         return documentRepository.findAll();
     }
 
