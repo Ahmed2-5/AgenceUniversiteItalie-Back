@@ -59,6 +59,6 @@ public class Clients {
 
     @OneToMany(mappedBy = "clientDocument", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Document> documents=new ArrayList<>();
+    private List<ClientDocument> documents=new ArrayList<>();
 
 }

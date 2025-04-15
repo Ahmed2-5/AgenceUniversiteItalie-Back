@@ -1,8 +1,8 @@
 package Agence.AgenceUniversiteItalie_backEnd.service;
 
 
+import Agence.AgenceUniversiteItalie_backEnd.entity.ClientDocument;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
-import Agence.AgenceUniversiteItalie_backEnd.entity.Document;
 import Agence.AgenceUniversiteItalie_backEnd.entity.EnumRole;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
@@ -41,12 +41,12 @@ public class DocumentService {
     private String uploadDir;
 
 
-    public Document getDocumentById(Long idDocument){
+    public ClientDocument getDocumentById(Long idDocument){
         return documentRepository.findById(idDocument).
                 orElseThrow(()->new EntityNotFoundException("Documents not found whith this id"+idDocument));
     }
 
-    public List<Document> getDocumentByClient(Long idClient){
+    public List<ClientDocument> getDocumentByClient(Long idClient){
         return documentRepository.findByClientDocument_IdClients(idClient);
     }
 
@@ -60,7 +60,7 @@ public class DocumentService {
      * @throws IOException
      */
     @Transactional
-    public Document uploadDocument(MultipartFile file , String nom , Long idClient, Long idUtilisateur)throws IOException{
+    public ClientDocument uploadDocument(MultipartFile file , String nom , Long idClient, Long idUtilisateur)throws IOException{
         Clients clients = clientsRepository.findById(idClient)
                 .orElseThrow(()-> new EntityNotFoundException("Cllient not found with this id:"+idClient));
 
@@ -85,7 +85,7 @@ public class DocumentService {
         Path filePath = uploadPath.resolve(uniqueFileName);
         Files.copy(file.getInputStream(),filePath);
 
-        Document document = new Document();
+        ClientDocument document = new ClientDocument();
         document.setNom(nom);
         document.setCheminFichier(clientDir + "/" +uniqueFileName );
         document.setClientDocument(clients);
@@ -98,17 +98,30 @@ public class DocumentService {
 
 
     @Transactional
-    public Document updateDocument(Long idDoc, String nouveauNom){
-        Document document= documentRepository.findById(idDoc).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"le document n'est pas trouver"));
+    public ClientDocument updateDocument(Long idDoc, String nouveauNom){
+        ClientDocument document = documentRepository.findById(idDoc)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "le document n'est pas trouver"));
+
+        // Extract extension from the current file name
+        String extension = "";
+        if (document.getNom().contains(".")) {
+            extension = document.getNom().substring(document.getNom().lastIndexOf("."));
+        }
+
+        // Append extension to the new name if not already present
+        if (!nouveauNom.endsWith(extension)) {
+            nouveauNom += extension;
+        }
 
         document.setNom(nouveauNom);
         return documentRepository.save(document);
     }
 
+
     @Transactional
     public void deleteDocument(Long idDocument) throws IOException{
 
-        Document document = documentRepository.findById(idDocument).orElse(null);
+    	ClientDocument document = documentRepository.findById(idDocument).orElse(null);
 
         Path filePath = Paths.get(document.getCheminFichier());
         Files.deleteIfExists(filePath);
@@ -117,21 +130,45 @@ public class DocumentService {
     }
 
     // A ne pas utiliser pour le moments sauf si le client a demander pour une suivit complet.
-    public List<Document> getAllDocuments(){
+    public List<ClientDocument> getAllDocuments(){
         return documentRepository.findAll();
     }
 
+    @Transactional
+    public ClientDocument replaceDocument(Long idDocument, MultipartFile newFile, String newFileName) throws IOException {
+        ClientDocument document = documentRepository.findById(idDocument)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
+        // Delete the old file
+        Path oldFilePath = Paths.get(document.getCheminFichier());
+        Files.deleteIfExists(oldFilePath);
 
+        // If the new file name is not provided, use the original file name without extension
+        String fileExtension = newFile.getOriginalFilename() != null
+                ? newFile.getOriginalFilename().substring(newFile.getOriginalFilename().lastIndexOf("."))
+                : ".pdf";  // Default to .pdf if no extension is found
 
+        // Use the new file name provided by the user (if available)
+        String uniqueFileName = (newFileName != null && !newFileName.isEmpty())
+                ? newFileName + fileExtension
+                : UUID.randomUUID().toString() + fileExtension; // Default to UUID if no new file name is provided
 
+        String clientDir = uploadDir + "/" + document.getClientDocument().getIdClients();
+        Path uploadPath = Paths.get(clientDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
 
+        Path newFilePath = uploadPath.resolve(uniqueFileName);
+        Files.copy(newFile.getInputStream(), newFilePath);
 
+        // Update file path and name in the entity
+        document.setCheminFichier(clientDir + "/" + uniqueFileName);
+        document.setNom(newFileName != null && !newFileName.isEmpty() ? newFileName : document.getNom()); // Set new name or keep the old one
+        document.setDateAjout(LocalDateTime.now()); // Optional: Update date
 
-
-
-
-
+        return documentRepository.save(document);
+    }
 
 
 }

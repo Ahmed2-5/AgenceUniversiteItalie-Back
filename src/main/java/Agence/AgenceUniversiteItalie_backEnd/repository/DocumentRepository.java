@@ -1,15 +1,16 @@
 package Agence.AgenceUniversiteItalie_backEnd.repository;
 
-import Agence.AgenceUniversiteItalie_backEnd.entity.Document;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import Agence.AgenceUniversiteItalie_backEnd.entity.ClientDocument;
 
 import java.util.List;
 
-public interface DocumentRepository extends JpaRepository<Document,Long> {
+public interface DocumentRepository extends JpaRepository<ClientDocument,Long> {
 
-    List<Document> findByClientDocument_IdClients(Long idClient);
+    List<ClientDocument> findByClientDocument_IdClients(Long idClient);
 
-    List<Document> findDocumentByAjouterPar_IdUtilisateur(Long idUtilisateur);
+    List<ClientDocument> findDocumentByAjouterPar_IdUtilisateur(Long idUtilisateur);
 
-    List<Document> findDocumentByNomContainingIgnoreCase(String nom);
+    List<ClientDocument> findDocumentByNomContainingIgnoreCase(String nom);
 }
