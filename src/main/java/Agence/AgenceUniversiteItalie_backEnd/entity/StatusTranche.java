@@ -1,6 +1,7 @@
 package Agence.AgenceUniversiteItalie_backEnd.entity;
 
-public enum StatusPaiment {
+public enum StatusTranche {
+
     EN_COURS,
     COMPLETE,
     ANNULE
