@@ -107,6 +107,23 @@ public class DocumentController {
         return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
     }
 
+    @PatchMapping(value = "/replace/{idDocument}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ClientDocument> replaceDocument(
+            @PathVariable Long idDocument,
+            @RequestParam("file") MultipartFile newFile,
+            @RequestParam("newFileName") String newFileName) {
+        try {
+            // Delegate to the service to handle document replacement with the new file name
+            ClientDocument updatedDocument = documentService.replaceDocument(idDocument, newFile, newFileName);
+            return ResponseEntity.ok(updatedDocument);
+        } catch (EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to replace document: " + e.getMessage());
+        }
+    }
+
+
 
 
 }

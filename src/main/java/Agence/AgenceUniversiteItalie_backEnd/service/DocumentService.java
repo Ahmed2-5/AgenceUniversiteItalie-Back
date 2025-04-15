@@ -99,11 +99,24 @@ public class DocumentService {
 
     @Transactional
     public ClientDocument updateDocument(Long idDoc, String nouveauNom){
-    	ClientDocument document= documentRepository.findById(idDoc).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"le document n'est pas trouver"));
+        ClientDocument document = documentRepository.findById(idDoc)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "le document n'est pas trouver"));
+
+        // Extract extension from the current file name
+        String extension = "";
+        if (document.getNom().contains(".")) {
+            extension = document.getNom().substring(document.getNom().lastIndexOf("."));
+        }
+
+        // Append extension to the new name if not already present
+        if (!nouveauNom.endsWith(extension)) {
+            nouveauNom += extension;
+        }
 
         document.setNom(nouveauNom);
         return documentRepository.save(document);
     }
+
 
     @Transactional
     public void deleteDocument(Long idDocument) throws IOException{
@@ -121,17 +134,41 @@ public class DocumentService {
         return documentRepository.findAll();
     }
 
+    @Transactional
+    public ClientDocument replaceDocument(Long idDocument, MultipartFile newFile, String newFileName) throws IOException {
+        ClientDocument document = documentRepository.findById(idDocument)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
 
+        // Delete the old file
+        Path oldFilePath = Paths.get(document.getCheminFichier());
+        Files.deleteIfExists(oldFilePath);
 
+        // If the new file name is not provided, use the original file name without extension
+        String fileExtension = newFile.getOriginalFilename() != null
+                ? newFile.getOriginalFilename().substring(newFile.getOriginalFilename().lastIndexOf("."))
+                : ".pdf";  // Default to .pdf if no extension is found
 
+        // Use the new file name provided by the user (if available)
+        String uniqueFileName = (newFileName != null && !newFileName.isEmpty())
+                ? newFileName + fileExtension
+                : UUID.randomUUID().toString() + fileExtension; // Default to UUID if no new file name is provided
 
+        String clientDir = uploadDir + "/" + document.getClientDocument().getIdClients();
+        Path uploadPath = Paths.get(clientDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
 
+        Path newFilePath = uploadPath.resolve(uniqueFileName);
+        Files.copy(newFile.getInputStream(), newFilePath);
 
+        // Update file path and name in the entity
+        document.setCheminFichier(clientDir + "/" + uniqueFileName);
+        document.setNom(newFileName != null && !newFileName.isEmpty() ? newFileName : document.getNom()); // Set new name or keep the old one
+        document.setDateAjout(LocalDateTime.now()); // Optional: Update date
 
-
-
-
-
+        return documentRepository.save(document);
+    }
 
 
 }

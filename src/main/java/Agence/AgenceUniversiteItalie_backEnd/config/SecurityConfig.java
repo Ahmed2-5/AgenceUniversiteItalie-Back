@@ -99,7 +99,8 @@ public class SecurityConfig {
                             "/api/Clients/getclientById/**",
                             "/api/documents/Client/Documents/**",
                             "/api/documents/**",
-                            "/api/documents/rename/**"
+                            "/api/documents/rename/**",
+                            "/api/documents/replace/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )
