@@ -22,11 +22,28 @@ public class Tranche {
     private LocalDate dateResglement;
     private int numero;
 
+    @Enumerated(EnumType.STRING)
+    private StatusTranche statusTranche;
+
 
 
     @ManyToOne
     @JoinColumn(name = "paiement_id", nullable = false)
     private Payement payement;
 
+
+    public Tranche(Payement payement, BigDecimal montant, LocalDate dateLimite, int numero) {
+        this.payement = payement;
+        this.montant = montant;
+        this.dateLimite = dateLimite;
+        this.numero = numero;
+        this.statusTranche = StatusTranche.EN_ATTENTE;
+    }
+
+    public void marquerCommePayer(){
+        this.dateResglement=LocalDate.now();
+        this.statusTranche=StatusTranche.PAYEE;
+        this.payement.verifierStatus();
+    }
 
 }

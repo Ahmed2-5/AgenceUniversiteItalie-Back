@@ -15,7 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 public class Payement {
 
-    // Ajout d'un class de tranche pour avoir la possibilite de plusieur tranche avec leur ID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPayement;
@@ -29,20 +28,49 @@ public class Payement {
     @Enumerated(EnumType.STRING)
     private StatusTranche statusTranche;
 
-    @OneToMany(mappedBy = "paiement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Tranche> tranches = new ArrayList<>();
-
-
-
     @Enumerated(EnumType.STRING)
     private StatusPaiment statusPaiment=StatusPaiment.EN_COURS;
 
 
-
+    @OneToMany(mappedBy = "paiement", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tranche> tranches = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "Client_id", nullable = false)
     private Clients client;
 
+
+    public Payement(Clients client, BigDecimal montantaTotal) {
+        this.client = client;
+        this.montantaTotal = montantaTotal;
+
+    }
+
+    public void diviserEnTranche(int nombreTranches){
+        if (nombreTranches<1 || nombreTranches>5){
+            throw new IllegalArgumentException("Nombre de tranches invalid");
+        }
+
+        this.tranches.clear();
+
+        BigDecimal montantParTranche = this.montantaTotal.divide(BigDecimal.valueOf(nombreTranches), 2, BigDecimal.ROUND_HALF_UP);
+
+
+        LocalDate dateLimite = LocalDate.now();
+        for (int i=0; i<nombreTranches; i++){
+
+            dateLimite=dateLimite.plusMonths(1);
+            Tranche tranche = new Tranche(this,montantParTranche,dateLimite,i+1);
+            this.tranches.add(tranche);
+        }
+    }
+
+
+    public void verifierStatus(){
+        boolean toutespayer = tranches.stream().allMatch(t -> t.getStatusTranche() == StatusTranche.PAYEE);
+        if (toutespayer){
+            this.statusPaiment=StatusPaiment.COMPLETE;
+        }
+    }
 
 
 

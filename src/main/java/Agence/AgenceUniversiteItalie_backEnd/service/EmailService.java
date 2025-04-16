@@ -1,7 +1,9 @@
 package Agence.AgenceUniversiteItalie_backEnd.service;
 
 
+import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
 import Agence.AgenceUniversiteItalie_backEnd.entity.PasswordResetToken;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Tranche;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.PasswordResetTokenRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
@@ -128,5 +130,49 @@ public class EmailService {
         }catch (Exception e){
             System.err.println("Errueur lors de l'envoi de l'email:" +e.getMessage());
         }
+    }
+
+
+
+    public void envoyerRappelEcheance(Tranche tranche){
+        Clients clients = tranche.getPayement().getClient();
+
+        String message = String.format(
+                "Bonjour %s %s,\n\n" +
+                        "Il reste 3 jours pour régler la %dème tranche de votre paiement de %.2f €.\n" +
+                        "Date limite : %s\n\n" +
+                        "Cordialement,\n" +
+                        "Agence Université Italie",
+                clients.getPrenomClient(),
+                clients.getNomClient(),
+                tranche.getNumero(),
+                tranche.getMontant(),
+                tranche.getDateLimite()
+        );
+        sendSimpleEmail(clients.getEmailClient(),"IMPORTANT - Retard de paiement - Tranche " + tranche.getNumero(),
+                message);
+    }
+
+
+    // hedhi bich nebaathou el mail ki yebda retard
+    public void envoyerNotificationRetard(Tranche tranche){
+        Clients clients = tranche.getPayement().getClient();
+
+        String message = String.format(
+                "Bonjour %s %s,\n\n" +
+                        "La %dème tranche de votre paiement de %.2f € est en retard.\n" +
+                        "Date limite dépassée : %s\n" +
+                        "Merci de régulariser votre situation dans les plus brefs délais.\n\n" +
+                        "Cordialement,\n" +
+                        "Agence Université Italie",
+                clients.getPrenomClient(),
+                clients.getNomClient(),
+                tranche.getNumero(),
+                tranche.getMontant(),
+                tranche.getDateLimite()
+        );
+
+        sendSimpleEmail(clients.getEmailClient(),"IMPORTANT - Retard de paiement - Tranche " + tranche.getNumero(),
+                message);
     }
 }

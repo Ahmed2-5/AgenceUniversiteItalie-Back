@@ -23,6 +23,7 @@ public interface ClientsRepository extends JpaRepository<Clients, Long> {
 
     //Optional<Clients> findClientsByPrenomClient(String prenomClient);
 
+
     @Query("SELECT client FROM Clients client WHERE LOWER(client.nomClient) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(client.prenomClient) LIKE LOWER(CONCAT('%', :searchTerm, '%')) ")
     List<Clients> searchClients(String searchTerm);
 }
