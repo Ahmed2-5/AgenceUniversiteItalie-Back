@@ -29,10 +29,10 @@ public class Payement {
     private StatusTranche statusTranche;
 
     @Enumerated(EnumType.STRING)
-    private StatusPaiment statusPaiment=StatusPaiment.EN_COURS;
+    private StatusPaiment statusPaiment;
 
 
-    @OneToMany(mappedBy = "paiement", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "payement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tranche> tranches = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "Client_id", nullable = false)
@@ -42,7 +42,8 @@ public class Payement {
     public Payement(Clients client, BigDecimal montantaTotal) {
         this.client = client;
         this.montantaTotal = montantaTotal;
-
+        this.dateCreation = LocalDate.now();
+        this.statusPaiment= StatusPaiment.EN_COURS;
     }
 
     public void diviserEnTranche(int nombreTranches){

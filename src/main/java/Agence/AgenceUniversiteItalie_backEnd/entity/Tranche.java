@@ -26,6 +26,10 @@ public class Tranche {
     private StatusTranche statusTranche;
 
 
+    private boolean notificationEnvoyee = false;
+    private boolean notificationRetardEnvoyee = false;
+
+
 
     @ManyToOne
     @JoinColumn(name = "paiement_id", nullable = false)

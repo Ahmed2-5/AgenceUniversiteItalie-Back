@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PaymentRepository extends JpaRepository<Payement,Long> {
 
-    List<Payement> findByClient_IdClients(Clients clientId);
+    List<Payement> findByClientIdClients (Long clientId);
     List<Payement> findPaymentByStatusPaiment(StatusPaiment status);
 
 

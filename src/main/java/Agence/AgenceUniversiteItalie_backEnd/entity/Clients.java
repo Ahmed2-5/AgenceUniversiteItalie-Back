@@ -53,7 +53,7 @@ public class Clients {
     @JoinColumn(name = "assigned_to")
     private Utilisateur assignedTo;
 
-    @OneToMany(mappedBy = "clients", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Payement> payementClient =new ArrayList<>();
 

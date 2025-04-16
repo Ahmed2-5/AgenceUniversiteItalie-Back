@@ -10,9 +10,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TrancheRepository extends JpaRepository<Tranche, Long> {
-    List<Tranche> findByStatusTrancheAndDateLimiteLessThan(StatusTranche statusTranche, LocalDate limite);
+    List<Tranche> findByStatusTrancheAndDateLimiteLessThanEqual(StatusTranche statusTranche, LocalDate limite);
     List<Tranche> findByStatusTrancheAndDateLimite(StatusTranche statusTranche, LocalDate limite);
-    List<Tranche> findByPayement(Payement payment);
+    List<Tranche> findByPayementIdPayement(Long paymentId);
 
 
 
