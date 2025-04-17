@@ -100,7 +100,11 @@ public class SecurityConfig {
                             "/api/documents/Client/Documents/**",
                             "/api/documents/**",
                             "/api/documents/rename/**",
-                            "/api/documents/replace/**"
+                            "/api/documents/replace/**",
+                            "/api/paiements/ajouterPayment",
+                            "/api/paiements/client/**",
+                            "/api/paiements/**",
+                            "/api/paiements/Tranches/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

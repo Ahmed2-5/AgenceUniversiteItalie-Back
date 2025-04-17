@@ -18,6 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/paiements")
+@CrossOrigin(origins = "http://localhost:4200")
 public class PaiementController {
 
     @Autowired
@@ -67,7 +68,7 @@ public class PaiementController {
 
 
     // hedhi mtaa eli tbadel el status ahaya
-    @PostMapping("/Tranches/{trancheId]/payer")
+    @PostMapping("/Tranches/{trancheId}/payer")
     public ResponseEntity<Void> payerTranche(@PathVariable Long trancheId){
         try {
             paiementService.reglerTranche(trancheId);
@@ -77,6 +78,16 @@ public class PaiementController {
         }
     }
 
+
+    @GetMapping("/{paiementId}/reste")
+    public ResponseEntity<BigDecimal> getResteAPayer(@PathVariable Long paiementId) {
+        try {
+            BigDecimal reste = paiementService.calculerResteAPayer(paiementId);
+            return ResponseEntity.ok(reste);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 
 
