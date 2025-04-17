@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -26,13 +28,11 @@ public class Payement {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private StatusTranche statusTranche;
-
-    @Enumerated(EnumType.STRING)
     private StatusPaiment statusPaiment;
 
 
     @OneToMany(mappedBy = "payement", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Tranche> tranches = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "Client_id", nullable = false)

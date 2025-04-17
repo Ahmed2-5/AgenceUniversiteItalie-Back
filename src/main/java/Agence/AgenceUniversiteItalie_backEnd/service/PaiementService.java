@@ -98,6 +98,16 @@ public class PaiementService {
             }
         }
     }
+    
+    public BigDecimal calculerResteAPayer(Long paiementId) {
+        List<Tranche> tranches = getTranchesByPayment(paiementId);
+
+        return tranches.stream()
+                .filter(t -> t.getStatusTranche() == StatusTranche.EN_ATTENTE || t.getStatusTranche() == StatusTranche.EN_RETARD)
+                .map(Tranche::getMontant)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
 
 
 
