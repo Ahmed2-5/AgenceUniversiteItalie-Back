@@ -11,6 +11,13 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class,
+		  property = "idTache"
+)
 @Entity
 @Data
 @NoArgsConstructor
@@ -48,6 +55,7 @@ public class Tache {
     private Utilisateur TakenBy;
     
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
             name = "tache_admins",
             joinColumns = @JoinColumn(name = "tache_id"),

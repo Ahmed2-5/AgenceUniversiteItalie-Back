@@ -97,6 +97,7 @@ public class SecurityConfig {
                             "/api/Clients/deleteClient/**",
                             "/api/Clients/AllClients",
                             "/api/Clients/getclientById/**",
+                            "/api/Clients/**",
                             "/api/documents/Client/Documents/**",
                             "/api/documents/**",
                             "/api/documents/rename/**",

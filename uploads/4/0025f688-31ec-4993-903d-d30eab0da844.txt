@@ -1,0 +1,20 @@
+naamel filter 3ala tasks list (V)
+nbadel stats lkol user uniquement (V)
+nkaber fel logo l agence(V)
+show togglepwd lel login(V)
+nbadel taswiret tofla(V)
+
+loading feha cat(V)
+naaamel authgard fel dashbord lezem login 
+------------------
+
+git add .
+git commit -m ""
+git push (error ncopih)
+
+
+git checkout branch
+git branch esm l-lbranch(créer branche)
+---------
+ba3d l merge 
+git pull origin master

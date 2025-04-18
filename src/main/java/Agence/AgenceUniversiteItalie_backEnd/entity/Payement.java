@@ -31,9 +31,7 @@ public class Payement {
     @Enumerated(EnumType.STRING)
     private StatusPaiment statusPaiment;
 
-
     @OneToMany(mappedBy = "payement", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Tranche> tranches = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "Client_id", nullable = false)
