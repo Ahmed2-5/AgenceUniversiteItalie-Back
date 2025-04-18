@@ -54,7 +54,6 @@ public class Clients {
     private Utilisateur assignedTo;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Payement> payementClient =new ArrayList<>();
 
     @OneToMany(mappedBy = "clientDocument", cascade = CascadeType.ALL, orphanRemoval = true)

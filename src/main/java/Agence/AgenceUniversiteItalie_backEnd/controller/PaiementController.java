@@ -55,7 +55,7 @@ public class PaiementController {
         }
     }
 
-
+    
     @GetMapping("/{paiementId}/Tranches")
     public ResponseEntity<List<Tranche>> getTranchesPaiement(@PathVariable Long paiementId){
         try {
