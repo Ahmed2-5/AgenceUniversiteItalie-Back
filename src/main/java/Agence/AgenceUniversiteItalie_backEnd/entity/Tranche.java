@@ -48,6 +48,7 @@ public class Tranche {
         this.dateResglement=LocalDate.now();
         this.statusTranche=StatusTranche.PAYEE;
         this.payement.verifierStatus();
+        this.payement.mettreAJourLeReste();
     }
 
 }
