@@ -50,7 +50,7 @@ public class Credential {
     private Clients clients;
 
 
-    // OneToMany with the Universite and the Universitaly(ToTalk with hedi in the next steps )
+    // OneToMany with the Universite and the Universitaly
 
 
 
