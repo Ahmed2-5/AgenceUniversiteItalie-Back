@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -33,6 +35,7 @@ public class Tranche {
 
     @ManyToOne
     @JoinColumn(name = "paiement_id", nullable = false)
+    @JsonBackReference
     private Payement payement;
 
 
@@ -48,6 +51,7 @@ public class Tranche {
         this.dateResglement=LocalDate.now();
         this.statusTranche=StatusTranche.PAYEE;
         this.payement.verifierStatus();
+        this.payement.mettreAJourLeReste();
     }
 
 }

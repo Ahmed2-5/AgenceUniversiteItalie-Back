@@ -78,11 +78,11 @@ public class Utilisateur {
     @JsonIgnore
     private Set<ClientDocument> documentAdded = new HashSet<>();
 
-    @OneToMany(mappedBy = "clientCreatedby",cascade = {CascadeType.MERGE , CascadeType.PERSIST})
+    @OneToMany(mappedBy = "clientCreatedby",cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<Clients> clientsCreated=new HashSet<>();
 
-    @OneToMany(mappedBy = "assignedTo",cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "assignedTo",cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Clients> clientsAssigned;
 

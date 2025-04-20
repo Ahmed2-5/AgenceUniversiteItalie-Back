@@ -57,6 +57,7 @@ public class PaiementService {
         return paymentRepository.findByClientIdClients(clientId);
     }
 
+
     public List<Tranche> getTranchesByPayment(Long paymentId){
         return trancheRepository.findByPayementIdPayement(paymentId);
     }

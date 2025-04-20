@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -25,17 +26,16 @@ public class Payement {
 
     private LocalDate dateCreation;
 
-    private String description;
+    private BigDecimal leReste;
 
     @Enumerated(EnumType.STRING)
     private StatusPaiment statusPaiment;
 
-
     @OneToMany(mappedBy = "payement", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<Tranche> tranches = new ArrayList<>();
     @ManyToOne
     @JoinColumn(name = "Client_id", nullable = false)
+    @JsonBackReference
     private Clients client;
 
 
@@ -45,6 +45,14 @@ public class Payement {
         this.dateCreation = LocalDate.now();
         this.statusPaiment= StatusPaiment.EN_COURS;
     }
+    
+    public void mettreAJourLeReste() {
+        this.leReste = tranches.stream()
+                .filter(t -> t.getStatusTranche() == StatusTranche.EN_ATTENTE || t.getStatusTranche() == StatusTranche.EN_RETARD)
+                .map(Tranche::getMontant)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
 
     public void diviserEnTranche(int nombreTranches){
         if (nombreTranches<1 || nombreTranches>5){
@@ -63,6 +71,7 @@ public class Payement {
             Tranche tranche = new Tranche(this,montantParTranche,dateLimite,i+1);
             this.tranches.add(tranche);
         }
+        this.mettreAJourLeReste();
     }
 
 
