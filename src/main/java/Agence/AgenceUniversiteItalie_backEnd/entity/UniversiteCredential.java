@@ -1,10 +1,7 @@
 package Agence.AgenceUniversiteItalie_backEnd.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +19,10 @@ public class UniversiteCredential {
     private String emailUniversite;
     private String passwordUniversite;
 
-    // Many to one with Credential
+
+    @ManyToOne
+    @JoinColumn(name = "credential_id")
+    private Credential credential;
 
 
 }

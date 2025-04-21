@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -49,8 +51,8 @@ public class Credential {
     @OneToOne(mappedBy = "credential", fetch = FetchType.LAZY)
     private Clients clients;
 
-
-    // OneToMany with the Universite and the Universitaly
+    @OneToMany(mappedBy = "credential", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UniversiteCredential> universiteCredentials = new ArrayList<>();
 
 
 
