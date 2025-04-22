@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Data
 @NoArgsConstructor
 public class Tache {
+    // ajout automatique des tasks wa9teli yzid client(n7ot fel description les infos mta3 lclient eli bech yet5eedmou + deadline 24H)(fih 5edmet les emaiil credential)
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

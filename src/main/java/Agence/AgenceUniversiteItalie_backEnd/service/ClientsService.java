@@ -92,23 +92,32 @@ public class ClientsService {
      * @param idC
      * Delete a client
      */
-    public void deleteClient(Long idC, String SuperAdminEmail){
+    @Transactional
+    public void deleteClient(Long idC, String SuperAdminEmail) {
         Utilisateur admin = utilisateurRepository.findByAdresseMail(SuperAdminEmail)
-                .orElseThrow(()-> new EntityNotFoundException("SuperAdmin or Admin with this email" +SuperAdminEmail+"is not found"));
+                .orElseThrow(() -> new EntityNotFoundException("SuperAdmin or Admin with this email " + SuperAdminEmail + " is not found"));
 
         Clients clientSupp = clientsRepository.findById(idC)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"le client n'est pas trouver "));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Le client n'est pas trouvé"));
 
-    boolean AdminCreator = admin.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN);
-    boolean isAssignedTo = clientSupp.getAssignedTo().getIdUtilisateur().equals(admin.getIdUtilisateur());
+        boolean AdminCreator = admin.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN);
+        boolean isAssignedTo = clientSupp.getAssignedTo() != null && 
+                               clientSupp.getAssignedTo().getIdUtilisateur().equals(admin.getIdUtilisateur());
 
-    if (!isAssignedTo && !AdminCreator){
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Only Super Admin or Admin can create Clients");
-    }
+        if (!isAssignedTo && !AdminCreator) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Super Admin or assigned Admin can delete Clients");
+        }
 
+        // Nettoyage manuel pour éviter les erreurs de cascade
+        clientSupp.getPayementClient().clear();
+        clientSupp.getDocuments().clear();
+        clientSupp.setAssignedTo(null);
+        clientSupp.setClientCreatedby(null);
+        clientSupp.setCredential(null);
 
         clientsRepository.delete(clientSupp);
     }
+
 
     /**
      *
