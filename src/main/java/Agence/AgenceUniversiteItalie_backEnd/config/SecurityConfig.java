@@ -1,15 +1,12 @@
 package Agence.AgenceUniversiteItalie_backEnd.config;
 
 
-import Agence.AgenceUniversiteItalie_backEnd.entity.Notification;
-import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import Agence.AgenceUniversiteItalie_backEnd.security.CustomUserDetailsService;
 import Agence.AgenceUniversiteItalie_backEnd.security.JwtAuthenticationFilter;
 import Agence.AgenceUniversiteItalie_backEnd.security.JwtUtil;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,14 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class SecurityConfig {
@@ -105,7 +95,17 @@ public class SecurityConfig {
                             "/api/paiements/ajouterPayment",
                             "/api/paiements/client/**",
                             "/api/paiements/**",
-                            "/api/paiements/Tranches/**"
+                            "/api/paiements/Tranches/**",
+                            "/api/Credential/GetAllCredentials",
+                            "/api/Credential/Clients/**",
+                            "/api/Credential/createCredential/**",
+                            "/api/Credential/deleteCredential/**",
+                            "/api/Credential/**",
+                            "/api/Universite-Credential/credential/**",
+                            "/api/Universite-Credential/deleteUniversiteCredential/**",
+                            "/api/Universite-Credential/getUniversiteCredentialById/**",
+                            "/api/Universite-Credential/UpdateUniversiteCredential/**",
+                            "/api/Universite-Credential/credential/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

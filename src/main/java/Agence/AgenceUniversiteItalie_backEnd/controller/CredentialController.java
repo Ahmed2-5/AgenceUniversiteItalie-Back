@@ -45,7 +45,6 @@ public class CredentialController {
         }
     }
 
-
     @PostMapping("/createCredential/{clientId}")
     public ResponseEntity<Credential> createCredential(@PathVariable Long clientId, @RequestBody Credential credential) {
         try {
