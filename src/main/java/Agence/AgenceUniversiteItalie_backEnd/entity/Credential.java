@@ -5,10 +5,11 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Data
@@ -47,11 +48,12 @@ public class Credential {
     private int montantPayerItalie;
 
 
-
-    @OneToOne(mappedBy = "credential", fetch = FetchType.LAZY)
+    @JsonIgnore
+    @OneToOne(mappedBy = "credential")
     private Clients clients;
 
     @OneToMany(mappedBy = "credential", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<UniversiteCredential> universiteCredentials = new ArrayList<>();
 
 

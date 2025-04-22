@@ -47,6 +47,7 @@ public class UniversiteCredentialService {
                 .orElseThrow(() -> new RuntimeException("UniversiteCredential not found with id: " + id));
 
         universiteCredential.setUniveriste(universiteCredentialDetails.getUniveriste());
+        universiteCredential.setNomUniversite(universiteCredentialDetails.getNomUniversite());
         universiteCredential.setEmailUniversite(universiteCredentialDetails.getEmailUniversite());
         universiteCredential.setPasswordUniversite(universiteCredentialDetails.getPasswordUniversite());
 

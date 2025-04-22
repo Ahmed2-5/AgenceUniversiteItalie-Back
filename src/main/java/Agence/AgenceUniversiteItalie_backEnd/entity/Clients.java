@@ -66,7 +66,7 @@ public class Clients {
     @JsonIgnore
     private List<ClientDocument> documents=new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "credential_id")
     private Credential credential;
 

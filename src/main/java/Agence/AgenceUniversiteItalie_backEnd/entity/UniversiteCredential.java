@@ -14,8 +14,10 @@ public class UniversiteCredential {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUniversite;
 
-    private EnumUniversite Univeriste;
+    private EnumUniversite univeriste;
 
+    private String nomUniversite;
+    
     private String emailUniversite;
     private String passwordUniversite;
 

@@ -3,6 +3,7 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.*;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.CredentialRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class ClientsService {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
+    @Autowired
+    private CredentialRepository credentialRepository;
 
     /**
      *
@@ -44,8 +47,14 @@ public class ClientsService {
        Utilisateur admin = utilisateurRepository.findByAdresseMail(AdminAssigned)
                        .orElseThrow(()-> new EntityNotFoundException("Admin not found with this adressMail"+AdminAssigned));
 
+       Credential emptyCredential = new Credential();
+       credentialRepository.save(emptyCredential); 
+
        clients.setClientCreatedby(createur);
        clients.setAssignedTo(admin);
+       clients.setCredential(emptyCredential);
+
+       emptyCredential.setClients(clients);
        return clientsRepository.save(clients);
     }
 
