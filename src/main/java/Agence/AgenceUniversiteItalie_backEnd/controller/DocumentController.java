@@ -91,7 +91,6 @@ public class DocumentController {
     @GetMapping("/{idDocument}/download")
     public ResponseEntity<byte[]> downloadFile(@PathVariable Long idDocument) throws IOException {
         ClientDocument doc = documentService.getDocumentById(idDocument);
-
         File file = new File(doc.getCheminFichier());
 
         if (!file.exists()) {
@@ -101,11 +100,20 @@ public class DocumentController {
         byte[] fileContent = Files.readAllBytes(file.toPath());
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", doc.getNom());
+        if (doc.getNom().endsWith(".pdf")) {
+            headers.setContentType(MediaType.APPLICATION_PDF);  // Set the MIME type to PDF
+        } else if (doc.getNom().endsWith(".jpg") || doc.getNom().endsWith(".jpeg") || doc.getNom().endsWith(".png")) {
+            headers.setContentType(MediaType.IMAGE_JPEG);  // Set the MIME type to JPEG (or other image types)
+        } else {
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);  // Generic binary type for other files
+        }
+
+        headers.setContentDispositionFormData("inline", doc.getNom());  // Ensure the file is opened inline
 
         return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
     }
+
+
 
     @PatchMapping(value = "/replace/{idDocument}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ClientDocument> replaceDocument(
@@ -124,6 +132,22 @@ public class DocumentController {
     }
 
 
+    @PutMapping("/{idDOc}/archive")
+    public ResponseEntity<?> archiverDoc(@PathVariable Long idDOc){
+        try {
+            return ResponseEntity.ok(documentService.archiveDoc(idDOc));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
+    @PutMapping("/{idDOc}/unarchive")
+    public ResponseEntity<?> unarchiverDoc(@PathVariable Long idDOc){
+        try {
+            return ResponseEntity.ok(documentService.unarchiveDoc(idDOc));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
 }

@@ -68,6 +68,7 @@ public class SecurityConfig {
                             "/api/utilisateurs/countAdmins",
                             "/api/utilisateurs/countUsers",
                             "/api/Taches/getAllTachesOfAdmin",
+                            "/api/Taches/GetAllTaches",
                             "/api/Taches/FindUsersFromIdtask/**",
                             "/api/Taches/gettacheById/**", 
                             "/api/Taches/status/**",
@@ -88,6 +89,9 @@ public class SecurityConfig {
                             "/api/Clients/AllClients",
                             "/api/Clients/getclientById/**",
                             "/api/Clients/**",
+                            "/api/Clients/assignedTo/**",
+                            "/api/Clients/upload-profile-image/**",
+                            "/api/Clients/uploads/**",
                             "/api/documents/Client/Documents/**",
                             "/api/documents/**",
                             "/api/documents/rename/**",
@@ -105,7 +109,13 @@ public class SecurityConfig {
                             "/api/Universite-Credential/deleteUniversiteCredential/**",
                             "/api/Universite-Credential/getUniversiteCredentialById/**",
                             "/api/Universite-Credential/UpdateUniversiteCredential/**",
-                            "/api/Universite-Credential/credential/**"
+                            "/api/Universite-Credential/credential/**",
+                            "/api/RDV/credential/**",
+                            "/api/RDV/deleteRdvCredential/**",
+                            "/api/RDV/getRDVById/**",
+                            "/api/RDV/updateRDV/**",
+                            "/api/RDV/RDVs/**"
+
                     ).permitAll()
                     .anyRequest().authenticated()
             )

@@ -133,13 +133,17 @@ public class ClientsService {
         if (!isAssignedTo && !AdminCreator) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Super Admin or assigned Admin can delete Clients");
         }
+        
+     // 🔥 Détache les associations pour éviter les erreurs de cascade :
+        Credential credential = clientSupp.getCredential();
+        if (clientSupp.getCredential() != null) {
+            clientSupp.getCredential().setClients(null); // Rompre la relation bidirectionnelle
+            clientSupp.setCredential(null);
+            credentialRepository.delete(credential); // ou rien si cascade REMOVE est activé
 
-        // Nettoyage manuel pour éviter les erreurs de cascade
-        clientSupp.getPayementClient().clear();
-        clientSupp.getDocuments().clear();
-        clientSupp.setAssignedToTunisie(null);
-        clientSupp.setClientCreatedby(null);
-        clientSupp.setCredential(null);
+        }
+
+ 
 
         clientsRepository.delete(clientSupp);
     }
