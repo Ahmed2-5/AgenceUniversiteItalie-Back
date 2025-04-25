@@ -83,6 +83,32 @@ public class Payement {
     }
 
 
+    // houni ouin bich naawdou el kesma
+    public void redistribuerMontantRestant(){
+        List<Tranche> tranchesRestantes = this.tranches.stream()
+                .filter(t -> t.getStatusTranche()== StatusTranche.EN_ATTENTE || t.getStatusTranche()==StatusTranche.EN_RETARD)
+                .sorted((t1,t2) -> Integer.compare(t1.getNumero(),t2.getNumero()))
+                .toList();
+
+        BigDecimal montantTotalTranches = tranchesRestantes.stream()
+                .map(Tranche::getMontant)
+                .reduce(BigDecimal.ZERO,BigDecimal::add);
+
+        if (tranchesRestantes.isEmpty() || montantTotalTranches.compareTo(BigDecimal.ZERO)==0){
+            return;
+        }
+
+        BigDecimal montantParTranche = montantTotalTranches.divide(BigDecimal.valueOf(tranchesRestantes.size()),2,BigDecimal.ROUND_HALF_UP);
+
+        for (Tranche tranche : tranchesRestantes){
+            tranche.setMontant(montantParTranche);
+        }
+        this.mettreAJourLeReste();
+    }
+
+
+
+
 
 
 

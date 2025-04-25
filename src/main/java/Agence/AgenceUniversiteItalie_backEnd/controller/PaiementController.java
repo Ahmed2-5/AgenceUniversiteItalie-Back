@@ -89,6 +89,12 @@ public class PaiementController {
         }
     }
 
+    @PutMapping("/tranche/update-montant/{idTranche}")
+    public ResponseEntity<?> updateTrancheAndRedistribute(@PathVariable Long idTranche,@RequestParam BigDecimal montant, @RequestParam String userEmail){
+        paiementService.updateMontantTrancheEtRedistribuer(idTranche,montant,userEmail);
+        return ResponseEntity.ok("Tranche updated");
+    }
+
 
 
 

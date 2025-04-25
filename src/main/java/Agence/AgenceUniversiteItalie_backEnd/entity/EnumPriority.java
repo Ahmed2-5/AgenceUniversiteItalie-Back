@@ -4,5 +4,5 @@ public enum EnumPriority {
     Aucun,
     Faible,
     Moyenne,
-    EleVée
+    Elevée
 }

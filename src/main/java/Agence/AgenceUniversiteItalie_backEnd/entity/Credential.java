@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Credential {
 
 
-    // ty bara zamer ya tfol
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idCredential;

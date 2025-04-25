@@ -128,8 +128,8 @@ public class UtilisateurService {
         return new SimpleGrantedAuthority("ROLE_" + role.getLibelleRole().name());
     }
 
-// hethy li nestamell feha !!!!!!!!!!!!!!!!!!!!!!!!
-    public Utilisateur createAdmin(Utilisateur admin , String superAdminEmail){
+// hethy li nestamell feha !!!!!!!!!!!!!!!!!!!!!!!!Hedhi C bon tgadet ✅ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    public Utilisateur createAdmin(Utilisateur admin , String superAdminEmail , EnumRole roleToAssign ){
         Utilisateur superAdmin = utilisateurRepository.findByAdresseMail(superAdminEmail)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"you must be a superAdmin"));
 
@@ -141,7 +141,11 @@ public class UtilisateurService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,"cet email est deja utilise");
         }
 
-        Role adminRole = roleRepository.findByLibelleRole(EnumRole.ADMIN)
+        if(roleToAssign != EnumRole.ADMIN_TUNISIE && roleToAssign != EnumRole.ADMIN_ITALIE){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Only Admin-tunisie ou bien Admin italie are allowed");
+        }
+
+        Role adminRole = roleRepository.findByLibelleRole(roleToAssign)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.BAD_REQUEST,"le role admin n'existe pas"));
 
         StatusCompte statusCompte;

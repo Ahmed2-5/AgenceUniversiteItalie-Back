@@ -68,7 +68,7 @@ public class DocumentService {
                 .orElseThrow(()-> new EntityNotFoundException("this Admin not found"+idUtilisateur));
 
         EnumRole role = utilisateur.getRole().getLibelleRole();
-        if (role != EnumRole.SUPER_ADMIN && role != EnumRole.ADMIN){
+        if (role != EnumRole.SUPER_ADMIN && role != EnumRole.ADMIN_TUNISIE){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"this Admin est n'est pas autorise");
         }
 

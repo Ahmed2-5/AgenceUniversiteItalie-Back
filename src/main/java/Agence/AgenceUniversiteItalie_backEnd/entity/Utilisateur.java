@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Data
@@ -82,9 +79,13 @@ public class Utilisateur {
     @JsonIgnore
     private Set<Clients> clientsCreated=new HashSet<>();
 
-    @OneToMany(mappedBy = "assignedTo",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "assignedToTunisie",cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Clients> clientsAssigned;
+    private List<Clients> clientsAssignedTunisie = new ArrayList<>();
+
+    @OneToMany(mappedBy = "assignedToItalie", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Clients> clientsAssignedItalie = new ArrayList<>();
 
     // ajout d'un constructeur
     public Utilisateur(String nom, String prenom, String adresseMail, String motDePasse, Role role) {

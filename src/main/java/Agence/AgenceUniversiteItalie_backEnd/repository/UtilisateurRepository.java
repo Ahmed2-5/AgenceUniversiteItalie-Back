@@ -19,6 +19,7 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur,Long> {
     @Query("SELECT u FROM Utilisateur u JOIN u.assignedTaches t WHERE t.idTache = ?1")
     public List<Utilisateur> findUsersByIdtask(Long idtask);
 
+    // hedhi lezemni nbadalha where admin_Tunisie and Admin_Italie;
     @Query("SELECT COUNT(u) FROM Utilisateur u WHERE u.role.libelleRole = 'ADMIN'")
     long countAdmins(); 
     
