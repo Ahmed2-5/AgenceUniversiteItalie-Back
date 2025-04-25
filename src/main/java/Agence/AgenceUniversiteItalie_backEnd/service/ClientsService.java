@@ -4,6 +4,7 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 import Agence.AgenceUniversiteItalie_backEnd.entity.*;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.CredentialRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.TacheRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -26,6 +28,8 @@ public class ClientsService {
 
     @Autowired
     private CredentialRepository credentialRepository;
+    @Autowired
+    private TacheRepository tacheRepository;
 
     /**
      *
@@ -35,27 +39,48 @@ public class ClientsService {
      *
      */
     @Transactional
-    public Clients clientsCreated(Clients clients, String adminEmail,String AdminAssigned){
+    public Clients clientsCreated(Clients clients, String adminEmail,String adminAssignedTunisie, String adminAssignedItalie){
 
         Utilisateur createur = utilisateurRepository.findByAdresseMail(adminEmail)
                 .orElseThrow(()-> new EntityNotFoundException("SuperAdmin or Admin with this email" +adminEmail+"is not found"));
 
-       if (!createur.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN) && !createur.getRole().getLibelleRole().equals(EnumRole.ADMIN)){
+       if (!createur.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN) && !createur.getRole().getLibelleRole().equals(EnumRole.ADMIN_TUNISIE)){
            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Only Super Admin or Admin can create Clients");
        }
 
-       Utilisateur admin = utilisateurRepository.findByAdresseMail(AdminAssigned)
-                       .orElseThrow(()-> new EntityNotFoundException("Admin not found with this adressMail"+AdminAssigned));
+       Utilisateur adminTunisie = utilisateurRepository.findByAdresseMail(adminAssignedTunisie)
+                       .orElseThrow(()-> new EntityNotFoundException("Admin not found with this adressMail"+adminAssignedTunisie));
+
+       Utilisateur adminItalie = utilisateurRepository.findByAdresseMail(adminAssignedItalie)
+               .orElseThrow(()-> new EntityNotFoundException("admin italie not found"+ adminAssignedItalie));
 
        Credential emptyCredential = new Credential();
        credentialRepository.save(emptyCredential); 
 
        clients.setClientCreatedby(createur);
-       clients.setAssignedTo(admin);
+       clients.setAssignedToTunisie(adminTunisie);
+       clients.setAssignedToItalie(adminItalie);
        clients.setCredential(emptyCredential);
 
        emptyCredential.setClients(clients);
-       return clientsRepository.save(clients);
+       Clients savedClient = clientsRepository.save(clients);
+       createAutomaticTaskForClient(savedClient,adminTunisie,createur);
+       return savedClient;
+    }
+
+    private void createAutomaticTaskForClient(Clients client, Utilisateur adminTunisie,Utilisateur creator){
+        Tache task = new Tache();
+        task.setTitre("Tache à faire pour le client ' " +client.getNomClient() + " " +client.getPrenomClient() + "'");
+        task.setDescription("Création mail, création compte prenotami et aussi compte université Italie pour " +
+                client.getNomClient() + " " + client.getPrenomClient() +
+                        "\nEmail: " + client.getEmailClient() +
+                        "\nTéléphone: " + client.getTelephoneClient());
+        task.setPriority(EnumPriority.Elevée);
+        task.setStatus(EnumStatutTache.PAS_ENCORE);
+        task.setCreatedBy(creator);
+        task.setDueDate(LocalDateTime.now().plusHours(24));
+        task.getAssignedAdmins().add(adminTunisie);
+        tacheRepository.save(task);
     }
 
     /**
@@ -82,7 +107,8 @@ public class ClientsService {
         clients.setService(clientDetails.getService());
         clients.setReference(clientDetails.getReference());
 
-        if(clientDetails.getAssignedTo() !=null){ clients.setAssignedTo(clientDetails.getAssignedTo());}
+        if(clientDetails.getAssignedToTunisie() !=null){ clients.setAssignedToTunisie(clientDetails.getAssignedToTunisie());}
+        if (clientDetails.getAssignedToItalie() != null){clients.setAssignedToItalie(clientDetails.getAssignedToItalie());}
 
         return clientsRepository.save(clients);
     }
@@ -101,8 +127,8 @@ public class ClientsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Le client n'est pas trouvé"));
 
         boolean AdminCreator = admin.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN);
-        boolean isAssignedTo = clientSupp.getAssignedTo() != null && 
-                               clientSupp.getAssignedTo().getIdUtilisateur().equals(admin.getIdUtilisateur());
+        boolean isAssignedTo = clientSupp.getAssignedToTunisie() != null &&
+                               clientSupp.getAssignedToTunisie().getIdUtilisateur().equals(admin.getIdUtilisateur());
 
         if (!isAssignedTo && !AdminCreator) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Super Admin or assigned Admin can delete Clients");
@@ -117,12 +143,7 @@ public class ClientsService {
 
         }
 
-        clientSupp.setAssignedTo(null);
-        clientSupp.setClientCreatedby(null);
-
-        // 🔁 Optionnel : supprimer explicitement les documents et paiements si nécessaire
-        clientSupp.getPayementClient().clear();
-        clientSupp.getDocuments().clear();
+ 
 
         clientsRepository.delete(clientSupp);
     }
@@ -199,7 +220,7 @@ public class ClientsService {
 
         Utilisateur adminEmail = utilisateurRepository.findByAdresseMail(adresseMail)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND," l'admin est introvable"));
-        return clientsRepository.findClientsByAssignedTo(adminEmail);
+        return clientsRepository.findClientsByAssignedToTunisie(adminEmail);
 
     }
 

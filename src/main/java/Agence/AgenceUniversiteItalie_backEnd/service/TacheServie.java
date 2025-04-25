@@ -57,7 +57,7 @@ public class TacheServie {
 
         Set<Utilisateur> assignedAdmins = utilisateurRepository.findAllById(adminIds)
                 .stream()
-                .filter(u -> u.getRole() != null && u.getRole().getLibelleRole().equals(EnumRole.ADMIN)) // Prevent NullPointer
+                .filter(u -> u.getRole() != null && u.getRole().getLibelleRole().equals(EnumRole.ADMIN_TUNISIE)) // Prevent NullPointer
                 .collect(Collectors.toSet());
 
         if (assignedAdmins.isEmpty()) {
@@ -104,7 +104,7 @@ public class TacheServie {
         }
 
         for (Utilisateur admin : adminList) {
-            if (!admin.getRole().getLibelleRole().equals(EnumRole.ADMIN)) {
+            if (!admin.getRole().getLibelleRole().equals(EnumRole.ADMIN_TUNISIE)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with ID is not an admin");
             }
 
@@ -134,7 +134,7 @@ public class TacheServie {
         Utilisateur admin = utilisateurRepository.findByAdresseMail(adminEmail)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Admin not found"));
 
-        if (admin.getRole().getLibelleRole() != EnumRole.ADMIN){
+        if (admin.getRole().getLibelleRole() != EnumRole.ADMIN_TUNISIE){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"User is not an admin");
         }
 

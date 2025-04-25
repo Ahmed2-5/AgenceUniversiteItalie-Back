@@ -35,12 +35,15 @@ public class CommentaireService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
         // Check if the user is allowed to comment (admin assigned to the task or super admin creator)
-        boolean isAssignedAdmin = utilisateur.getRole().getLibelleRole() == EnumRole.ADMIN &&
+        boolean isAssignedAdmin = utilisateur.getRole().getLibelleRole() == EnumRole.ADMIN_TUNISIE &&
+                tache.getAssignedAdmins().contains(utilisateur);
+        boolean isAssignedAdminItalie = utilisateur.getRole().getLibelleRole() == EnumRole.ADMIN_ITALIE &&
                 tache.getAssignedAdmins().contains(utilisateur);
         boolean isSuperAdmin = utilisateur.getRole().getLibelleRole() == EnumRole.SUPER_ADMIN &&
                 tache.getCreatedBy().getIdUtilisateur().equals(utilisateur.getIdUtilisateur());
 
-        if (!isAssignedAdmin && !isSuperAdmin) {
+        // Condition for admin Italie a ajouter
+        if (!isAssignedAdmin && !isSuperAdmin ) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not authorized to comment on this task");
         }
 

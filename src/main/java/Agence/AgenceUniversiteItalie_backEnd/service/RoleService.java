@@ -20,7 +20,7 @@ public class RoleService {
 
     @PostConstruct
     public void initRole(){
-        List<EnumRole> roles = Arrays.asList(EnumRole.SUPER_ADMIN, EnumRole.ADMIN, EnumRole.CLIENT);
+        List<EnumRole> roles = Arrays.asList(EnumRole.SUPER_ADMIN, EnumRole.ADMIN_TUNISIE, EnumRole.ADMIN_ITALIE, EnumRole.CLIENT);
         for (EnumRole enumRole: roles){
             Optional<Role> existingRole = roleRepository.findByLibelleRole(enumRole);
             if (existingRole.isEmpty()){

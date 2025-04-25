@@ -1,20 +1,21 @@
 package Agence.AgenceUniversiteItalie_backEnd.service;
 
 
-import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
-import Agence.AgenceUniversiteItalie_backEnd.entity.Payement;
-import Agence.AgenceUniversiteItalie_backEnd.entity.StatusTranche;
-import Agence.AgenceUniversiteItalie_backEnd.entity.Tranche;
+import Agence.AgenceUniversiteItalie_backEnd.entity.*;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.PaymentRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.TrancheRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,6 +32,8 @@ public class PaiementService {
 
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
 
     @Transactional
@@ -53,6 +56,7 @@ public class PaiementService {
     }
 
 
+    // only for admin Tunisie
     public List<Payement> getPaymentByClient(Long clientId){
         return paymentRepository.findByClientIdClients(clientId);
     }
@@ -109,17 +113,50 @@ public class PaiementService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    public void updateMontantTrancheEtRedistribuer(Long idTranche , BigDecimal nouveauMontant , String userEmail) {
+        Utilisateur utilisateur = utilisateurRepository.findByAdresseMail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Utilisateur Non trouver"));
 
+        EnumRole role = utilisateur.getRole().getLibelleRole();
+        if (role != EnumRole.SUPER_ADMIN && role != EnumRole.ADMIN_TUNISIE) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have the permission");
+        }
 
+        Tranche tranche = trancheRepository.findById(idTranche)
+                .orElseThrow(() -> new RuntimeException(" la tranche est introvable"));
 
+        Payement payement = tranche.getPayement();
 
+        tranche.setMontant(nouveauMontant);
+        trancheRepository.save(tranche);
 
+        BigDecimal totalRestant = payement.getMontantaTotal().subtract(nouveauMontant);
 
+        List<Tranche> autresTranches = payement.getTranches().stream()
+                .filter(t-> !t.getIdTranche().equals(idTranche))
+                .sorted((t1,t2)-> Integer.compare(t1.getNumero(),t2.getNumero()))
+                .toList();
 
+        int nbTranchesRestantes = autresTranches.size();
+        if (nbTranchesRestantes >0){
+            BigDecimal montantParTranche = totalRestant.divide(BigDecimal.valueOf(nbTranchesRestantes),2, RoundingMode.HALF_UP);
+            BigDecimal cumul = BigDecimal.ZERO;
 
+            for (int i = 0 ; i < nbTranchesRestantes; i++){
+                Tranche t = autresTranches.get(i);
+                if (i == nbTranchesRestantes -1){
+                    t.setMontant(totalRestant.subtract(cumul));
+                }else {
+                    t.setMontant(montantParTranche);
+                    cumul = cumul.add(montantParTranche);
+                }
+                trancheRepository.save(t);
+            }
+        }
+        payement.mettreAJourLeReste();
+        paymentRepository.save(payement);
 
-
-
+    }
 
 
 
