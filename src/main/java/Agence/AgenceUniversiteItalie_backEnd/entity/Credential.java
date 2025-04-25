@@ -30,23 +30,14 @@ public class Credential {
     private String prenotami;
     private String passwordPrenotami;
 
-// hethy bech twali class RDV ; ou feha date + ESM RDV + enum RDV 
-    private LocalDateTime dateRendezVous;
-
-    @Enumerated(EnumType.STRING)
-    private EnumRendezVous enumRendezVous;
-
     private String programmeEtude;
 
     @Enumerated(EnumType.STRING)
     private PreInscrit preInscrit; // if done envoyer une notification pour upload le dossier
 
-    private LocalDateTime dateTestItalien;
-
-
     // sauf pour les admin italie.
-    private int montantPayerItalie;
-
+  //  private int montantPayerItalie;
+    
 
     @JsonIgnore
     @OneToOne(mappedBy = "credential")
@@ -54,8 +45,11 @@ public class Credential {
 
     @OneToMany(mappedBy = "credential", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
+    private List<RDV> RDVs = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "credential", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<UniversiteCredential> universiteCredentials = new ArrayList<>();
-
 
 
 }

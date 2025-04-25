@@ -20,6 +20,9 @@ public class ClientDocument {
 
     private LocalDateTime dateAjout;
 
+    @Enumerated(EnumType.STRING)
+    private Archive archiveDoc = Archive.NON_ARCHIVER;
+    
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Clients clientDocument;

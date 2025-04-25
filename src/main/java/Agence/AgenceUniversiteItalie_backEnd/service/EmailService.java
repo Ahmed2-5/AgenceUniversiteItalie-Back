@@ -3,12 +3,14 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
 import Agence.AgenceUniversiteItalie_backEnd.entity.PasswordResetToken;
+import Agence.AgenceUniversiteItalie_backEnd.entity.RDV;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Tranche;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.PasswordResetTokenRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -175,6 +177,66 @@ public class EmailService {
         sendSimpleEmail(clients.getEmailClient(),"IMPORTANT - Retard de paiement - Tranche " + tranche.getNumero(),
                 message);
     }
+    
+    public void envoyerNotificationDajoutNouveauRdv(RDV rdv) {
+        if (rdv == null || rdv.getCredential() == null || rdv.getCredential().getClients() == null) {
+            throw new IllegalArgumentException("RDV or associated client is null");
+        }
+
+        Clients client = rdv.getCredential().getClients();
+
+        String message = String.format(
+            "Bonjour %s %s,\n\n" +
+            "Un nouveau rendez-vous a été planifié pour vous.\n\n" +
+            "Titre : %s\n" +
+            "Date et heure : %s\n" +
+            "Merci de prendre note de ce rendez-vous.\n\n" +
+            "Cordialement,\n" +
+            "Agence Université Italie",
+            client.getPrenomClient(),
+            client.getNomClient(),
+            rdv.getTitreRDV(),
+            rdv.getDateRendezVous().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        );
+
+        String subject = "📅 Nouveau Rendez-vous : " + rdv.getTitreRDV();
+
+        sendSimpleEmail(client.getEmailClient(), subject, message);
+    }
+
+    public void envoyerNotificationDeMiseàjourRdv(RDV rdv) {
+        Clients client = rdv.getCredential().getClients();
+
+        String message = String.format(
+                "Bonjour %s %s,\n\n" +
+                "Votre rendez-vous \"%s\" a été mis à jour.\n" +
+                "Nouvelle date et heure : %s\n" +
+                "Statut : %s\n\n" +
+                "Merci de prendre connaissance de cette modification.\n\n" +
+                "Cordialement,\n" +
+                "Agence Université Italie",
+                client.getPrenomClient(),
+                client.getNomClient(),
+                rdv.getTitreRDV(),
+                rdv.getDateRendezVous().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                rdv.getEnumRendezVous().toString()
+        );
+
+        sendSimpleEmail(
+                client.getEmailClient(),
+                "Mise à jour de votre rendez-vous",
+                message
+        );
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
     
     // ajout automatique des tasks wa9teli yzid client(n7ot fel description les infos mta3 lclient eli bech yet5eedmou + deadline 24H)(fih 5edmet les emaiil credential)
 

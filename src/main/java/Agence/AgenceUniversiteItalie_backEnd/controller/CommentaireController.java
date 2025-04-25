@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/commentaire")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CommentaireController {
 
     @Autowired

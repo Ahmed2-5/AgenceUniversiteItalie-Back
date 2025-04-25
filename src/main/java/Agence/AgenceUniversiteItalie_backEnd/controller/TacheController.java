@@ -15,6 +15,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/Taches")
+@CrossOrigin(origins = "http://localhost:4200")
 public class TacheController {
 
     private final TacheServie tacheService;
