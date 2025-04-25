@@ -56,8 +56,8 @@ public class Clients {
     private Utilisateur clientCreatedby;
 
     @ManyToOne
-    @JoinColumn(name = "assigned_to")
-    private Utilisateur assignedTo;
+    @JoinColumn(name = "assigned_to_tunisie")
+    private Utilisateur assignedToTunisie;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payement> payementClient =new ArrayList<>();
@@ -69,5 +69,9 @@ public class Clients {
     @OneToOne
     @JoinColumn(name = "credential_id")
     private Credential credential;
+
+    @ManyToOne
+    @JoinColumn(name = "assigned_to_italie")
+    private Utilisateur assignedToItalie;
 
 }

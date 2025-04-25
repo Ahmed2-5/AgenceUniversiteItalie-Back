@@ -99,10 +99,11 @@ public class UtilisateurController {
     }
 
 
+    // hedhi eli sarelha el update
     @PostMapping("/create-Admin")
-    public ResponseEntity<?> createAdmin(@RequestBody Utilisateur admin , @RequestParam String superAdminEmail  ) {
+    public ResponseEntity<?> createAdmin(@RequestBody Utilisateur admin , @RequestParam String superAdminEmail , @RequestParam EnumRole roleToAssign ) {
 
-        Utilisateur newAdmin = utilisateurService.createAdmin(admin, superAdminEmail);
+        Utilisateur newAdmin = utilisateurService.createAdmin(admin, superAdminEmail,roleToAssign);
         return ResponseEntity.ok(newAdmin);
     }
 

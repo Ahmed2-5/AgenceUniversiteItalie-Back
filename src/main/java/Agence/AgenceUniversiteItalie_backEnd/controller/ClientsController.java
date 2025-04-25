@@ -28,10 +28,11 @@ public class ClientsController {
     @PostMapping("/CreateClient")
     public ResponseEntity<?> createClient(@RequestBody Clients client,
                                           @RequestParam String adminEmail,
-                                          @RequestParam String AssignedAdminEmail) {
+                                          @RequestParam String assignedAdminTunisie,
+                                          @RequestParam String assignedAdminItalie) {
 
         try {
-            Clients createdClient = clientsService.clientsCreated(client, adminEmail,AssignedAdminEmail);
+            Clients createdClient = clientsService.clientsCreated(client, adminEmail,assignedAdminTunisie,assignedAdminItalie);
             return ResponseEntity.ok(createdClient);
         }catch (Exception e) {
             e.printStackTrace();
