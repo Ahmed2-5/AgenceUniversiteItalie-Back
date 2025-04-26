@@ -31,6 +31,7 @@ public class Tranche {
     private boolean notificationEnvoyee = false;
     private boolean notificationRetardEnvoyee = false;
 
+    private boolean montantFixe = false; // ✅ NEW field to detect manually updated tranches
 
 
     @ManyToOne
