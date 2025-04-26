@@ -101,6 +101,7 @@ public class SecurityConfig {
                             "/api/paiements/client/**",
                             "/api/paiements/**",
                             "/api/paiements/Tranches/**",
+                            "/api/paiements/tranche/update-montant/**",
                             "/api/Credential/GetAllCredentials",
                             "/api/Credential/Clients/**",
                             "/api/Credential/createCredential/**",

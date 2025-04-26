@@ -68,20 +68,29 @@ public class ClientsService {
        return savedClient;
     }
 
-    private void createAutomaticTaskForClient(Clients client, Utilisateur adminTunisie,Utilisateur creator){
+    private void createAutomaticTaskForClient(Clients client, Utilisateur adminTunisie, Utilisateur creator) {
         Tache task = new Tache();
-        task.setTitre("Tache à faire pour le client ' " +client.getNomClient() + " " +client.getPrenomClient() + "'");
-        task.setDescription("Création mail, création compte prenotami et aussi compte université Italie pour " +
-                client.getNomClient() + " " + client.getPrenomClient() +
-                        "\nEmail: " + client.getEmailClient() +
-                        "\nTéléphone: " + client.getTelephoneClient());
+        task.setTitre("Tâche à faire pour le client '" + client.getNomClient() + " " + client.getPrenomClient() + "'");
+
+        StringBuilder description = new StringBuilder();
+        description.append("* Création mail, création compte prenotami et aussi compte université Italie pour ")
+                   .append(client.getNomClient()).append(" ").append(client.getPrenomClient())
+                   .append("<br>") // HTML line break
+                   .append("- mail: ").append(client.getEmailClient())
+                   .append("<br>") // HTML line break
+                   .append("- Téléphone: ").append(client.getTelephoneClient());
+
+        task.setDescription(description.toString());
         task.setPriority(EnumPriority.Elevée);
         task.setStatus(EnumStatutTache.PAS_ENCORE);
         task.setCreatedBy(creator);
         task.setDueDate(LocalDateTime.now().plusHours(24));
         task.getAssignedAdmins().add(adminTunisie);
+
         tacheRepository.save(task);
     }
+
+
 
     /**
      *
