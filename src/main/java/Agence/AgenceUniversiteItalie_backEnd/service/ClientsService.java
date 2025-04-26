@@ -119,34 +119,46 @@ public class ClientsService {
      * Delete a client
      */
     @Transactional
-    public void deleteClient(Long idC, String SuperAdminEmail) {
-        Utilisateur admin = utilisateurRepository.findByAdresseMail(SuperAdminEmail)
-                .orElseThrow(() -> new EntityNotFoundException("SuperAdmin or Admin with this email " + SuperAdminEmail + " is not found"));
+    public void deleteClient(Long idC, String superAdminEmail) {
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(superAdminEmail)
+                .orElseThrow(() -> new EntityNotFoundException("SuperAdmin or Admin with this email " + superAdminEmail + " is not found"));
 
         Clients clientSupp = clientsRepository.findById(idC)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Le client n'est pas trouvé"));
 
-        boolean AdminCreator = admin.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN);
-        boolean isAssignedTo = clientSupp.getAssignedToTunisie() != null &&
-                               clientSupp.getAssignedToTunisie().getIdUtilisateur().equals(admin.getIdUtilisateur());
+        boolean isSuperAdmin = admin.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN);
+        boolean isAssignedToTunisie = clientSupp.getAssignedToTunisie() != null &&
+                                       clientSupp.getAssignedToTunisie().getIdUtilisateur().equals(admin.getIdUtilisateur());
 
-        if (!isAssignedTo && !AdminCreator) {
+        if (!isSuperAdmin && !isAssignedToTunisie) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only Super Admin or assigned Admin can delete Clients");
         }
-        
-     // 🔥 Détache les associations pour éviter les erreurs de cascade :
-        Credential credential = clientSupp.getCredential();
-        if (clientSupp.getCredential() != null) {
-            clientSupp.getCredential().setClients(null); // Rompre la relation bidirectionnelle
-            clientSupp.setCredential(null);
-            credentialRepository.delete(credential); // ou rien si cascade REMOVE est activé
 
+        // 🔥 Break the bidirectional link to Credential
+        Credential credential = clientSupp.getCredential();
+        if (credential != null) {
+            clientSupp.setCredential(null);
+            credential.setClients(null);
+            credentialRepository.delete(credential);
         }
 
- 
+        // 🧾 Clear payments (if needed)
+        clientSupp.getPayementClient().forEach(payement -> payement.setClient(null));
+        clientSupp.getPayementClient().clear();
 
+        // 📎 Clear documents
+        clientSupp.getDocuments().forEach(doc -> doc.setClientDocument(null));
+        clientSupp.getDocuments().clear();
+
+        // 👥 Break admin assignments (optional but safe)
+        clientSupp.setAssignedToTunisie(null);
+        clientSupp.setAssignedToItalie(null);
+        clientSupp.setClientCreatedby(null);
+
+        // 🧨 Finally delete the client
         clientsRepository.delete(clientSupp);
     }
+
 
 
     /**
@@ -216,14 +228,21 @@ public class ClientsService {
 
 
     //Admin eli lehi bel client
-    public List<Clients> getClientByAssignedTo(String adresseMail){
+    public List<Clients> getClientByAssignedToItalie(String adresseMail){
+
+        Utilisateur adminEmail = utilisateurRepository.findByAdresseMail(adresseMail)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND," l'admin est introvable"));
+        return clientsRepository.findClientsByAssignedToItalie(adminEmail);
+
+    }
+
+    public List<Clients> getClientByAssignedToTunisie(String adresseMail){
 
         Utilisateur adminEmail = utilisateurRepository.findByAdresseMail(adresseMail)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND," l'admin est introvable"));
         return clientsRepository.findClientsByAssignedToTunisie(adminEmail);
 
     }
-
 
     //Search lel client bel nom et prenom
     public List<Clients> searchClient(String searchTerm){

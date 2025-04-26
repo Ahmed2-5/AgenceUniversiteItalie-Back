@@ -116,15 +116,24 @@ public class ClientsController {
     }
 
 
-    @GetMapping("/assignedTo")
-    public ResponseEntity<?> getClientByAssignedTo(@RequestParam String mail){
+    @GetMapping("/assignedToTunisie")
+    public ResponseEntity<?> getClientByAssignedToTunisie(@RequestParam String mail){
         try {
-            return ResponseEntity.ok(clientsService.getClientByAssignedTo(mail));
+            return ResponseEntity.ok(clientsService.getClientByAssignedToTunisie(mail));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
+    @GetMapping("/assignedToItalie")
+    public ResponseEntity<?> getClientByAssignedToItalie(@RequestParam String mail){
+        try {
+            return ResponseEntity.ok(clientsService.getClientByAssignedToItalie(mail));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+    
     @GetMapping("/search")
     public ResponseEntity<?> searchClients(@RequestParam String q ){
         try {
