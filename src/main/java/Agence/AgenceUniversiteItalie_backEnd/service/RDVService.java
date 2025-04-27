@@ -41,6 +41,7 @@ public class RDVService {
         RDV rdv = rdvRepository.findById(rdvId)
                 .orElseThrow(() -> new RuntimeException("RDV not found with id: " + rdvId));
 
+        emailserv.envoyerNotificationAnnulationRdv(rdv);
         rdv.setCredential(null);
         rdvRepository.delete(rdv);
     }
