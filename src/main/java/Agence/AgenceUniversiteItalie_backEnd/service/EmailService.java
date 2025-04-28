@@ -229,15 +229,26 @@ public class EmailService {
         );
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // ajout automatique des tasks wa9teli yzid client(n7ot fel description les infos mta3 lclient eli bech yet5eedmou + deadline 24H)(fih 5edmet les emaiil credential)
+    public void envoyerNotificationAnnulationRdv(RDV rdv) {
+        Clients client = rdv.getCredential().getClients();
 
+        String message = String.format(
+                "Bonjour %s %s,\n\n" +
+                "Nous vous informons que votre rendez-vous \"%s\" prévu le %s a été annulé.\n\n" +
+                "Cordialement,\n" +
+                "Agence Université Italie",
+                client.getPrenomClient(),
+                client.getNomClient(),
+                rdv.getTitreRDV(),
+                rdv.getDateRendezVous().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        );
+
+        sendSimpleEmail(
+                client.getEmailClient(),
+                "Annulation de votre rendez-vous",
+                message
+        );
+    }
+
+    
 }
