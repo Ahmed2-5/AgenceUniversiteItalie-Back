@@ -250,5 +250,27 @@ public class EmailService {
         );
     }
 
+    public void envoyerRappelRDV(RDV rdv){
+        Clients client = rdv.getCredential().getClients();
+        String message = String.format(
+                "Bonjour %s %s,\n\n" +
+                        "Nous vous informons que votre rendez-vous \"%s\" prévu pour %s .\n\n" +
+                        "Merci de bien vouloir vous présenter quelques minutes à l'avance.,\n" +
+                        "En cas de problème, merci de nous contacter afin de régler la situation..,\n" +
+                        "Cordialement,\n" +
+                        "Agence Université Italie",
+                client.getPrenomClient(),
+                client.getNomClient(),
+                rdv.getTitreRDV(),
+                rdv.getDateRendezVous().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+
+        );
+        sendSimpleEmail(
+                client.getEmailClient(),
+                "Rappel de votre rendez-vous",
+                message
+        );
+    }
+
     
 }

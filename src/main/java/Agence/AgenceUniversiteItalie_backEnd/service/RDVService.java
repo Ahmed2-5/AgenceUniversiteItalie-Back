@@ -1,6 +1,8 @@
 package Agence.AgenceUniversiteItalie_backEnd.service;
 
+import Agence.AgenceUniversiteItalie_backEnd.entity.EnumRendezVous;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,6 +10,9 @@ import Agence.AgenceUniversiteItalie_backEnd.entity.Credential;
 import Agence.AgenceUniversiteItalie_backEnd.entity.RDV;
 import Agence.AgenceUniversiteItalie_backEnd.repository.CredentialRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.RDVRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Service
@@ -73,4 +78,19 @@ public class RDVService {
 
         return rdvRepository.findByCredential(credential);
     }
+
+
+    @Scheduled(cron = "0 0 6 * * ?")
+    public void envoyerRappelsRDV(){
+        LocalDateTime dateRendezVous = LocalDateTime.now().plusDays(1);
+
+        List<RDV> rendezVous = rdvRepository.findRDVByEnumRendezVousAndDateRendezVous(EnumRendezVous.NON_VALIDER, dateRendezVous);
+
+        for(RDV rdv: rendezVous){
+            emailserv.envoyerRappelRDV(rdv);
+        }
+    }
+
+
+
 }
