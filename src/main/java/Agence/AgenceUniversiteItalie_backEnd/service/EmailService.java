@@ -175,6 +175,7 @@ public class EmailService {
         sendSimpleEmail(clients.getEmailClient(),"IMPORTANT - Retard de paiement - Tranche " + tranche.getNumero(),
                 message);
     }
-
+    
+    // ajout automatique des tasks wa9teli yzid client(n7ot fel description les infos mta3 lclient eli bech yet5eedmou + deadline 24H)(fih 5edmet les emaiil credential)
 
 }

@@ -17,6 +17,8 @@ public interface ClientsRepository extends JpaRepository<Clients, Long> {
 
     List<Clients> findClientsByAssignedToTunisie(Utilisateur adresseMail);
 
+    List<Clients> findClientsByAssignedToItalie(Utilisateur adresseMail);
+
     //List<Clients> findByCreatedBy_EmailAdmin(Utilisateur emailAdmin);
 
     //Optional<Clients> findByEmailClient(String email);

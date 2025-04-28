@@ -41,6 +41,7 @@ public class Payement {
 
     public Payement(Clients client, BigDecimal montantaTotal) {
         this.client = client;
+        this.client.setCommunication(EnumCommunication.OUI);
         this.montantaTotal = montantaTotal;
         this.dateCreation = LocalDate.now();
         this.statusPaiment= StatusPaiment.EN_COURS;

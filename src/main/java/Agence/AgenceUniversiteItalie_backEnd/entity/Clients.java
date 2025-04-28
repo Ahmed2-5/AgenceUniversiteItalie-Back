@@ -47,10 +47,17 @@ public class Clients {
     
     private String reference;
 
+    private String programmedEtude;
+    private String villeItalie;
+    
+    @Enumerated(EnumType.STRING)
+    private EnumCommunication communication = EnumCommunication.NON;
+    
     @Enumerated(EnumType.STRING)
     private Archive archive = Archive.NON_ARCHIVER;
 
-
+    private String clientImageUrl;
+    
     @ManyToOne
     @JoinColumn(name = "created_by_id")
     private Utilisateur clientCreatedby;

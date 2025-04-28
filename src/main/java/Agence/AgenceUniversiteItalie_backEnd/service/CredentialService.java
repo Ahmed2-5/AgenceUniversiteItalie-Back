@@ -63,13 +63,10 @@ public class CredentialService {
         credential.setPasswrodGmail(credentialDetails.getPasswrodGmail());
         credential.setPrenotami(credentialDetails.getPrenotami());
         credential.setPasswordPrenotami(credentialDetails.getPasswordPrenotami());
-        credential.setDateRendezVous(credentialDetails.getDateRendezVous());
-        credential.setEnumRendezVous(credentialDetails.getEnumRendezVous());
         credential.setProgrammeEtude(credentialDetails.getProgrammeEtude());
         credential.setPreInscrit(credentialDetails.getPreInscrit());
-        credential.setDateTestItalien(credentialDetails.getDateTestItalien());
-        credential.setMontantPayerItalie(credentialDetails.getMontantPayerItalie());
-
+     //   credential.setMontantPayerItalie(credentialDetails.getMontantPayerItalie());
+        credential.getClients().setProgrammedEtude(credentialDetails.getProgrammeEtude());
         return credentialRepository.save(credential);
     }
 

@@ -55,7 +55,7 @@ public class SecurityConfig {
                             "/oauth2/**",
                             "/api/password/reset",
                             "/api/password/forgot",
-                            "/getNotifications",
+                            "/getNotifications/**",
                             "/getNotificationsByIsReadedOrNot/**",
                             "/createNotification",
                             "/getcreatedusers/**",
@@ -68,6 +68,7 @@ public class SecurityConfig {
                             "/api/utilisateurs/countAdmins",
                             "/api/utilisateurs/countUsers",
                             "/api/Taches/getAllTachesOfAdmin",
+                            "/api/Taches/GetAllTaches",
                             "/api/Taches/FindUsersFromIdtask/**",
                             "/api/Taches/gettacheById/**", 
                             "/api/Taches/status/**",
@@ -88,6 +89,10 @@ public class SecurityConfig {
                             "/api/Clients/AllClients",
                             "/api/Clients/getclientById/**",
                             "/api/Clients/**",
+                            "/api/Clients/assignedToTunisie/**",
+                            "/api/Clients/assignedToItalie/**",
+                            "/api/Clients/upload-profile-image/**",
+                            "/api/Clients/uploads/**",
                             "/api/documents/Client/Documents/**",
                             "/api/documents/**",
                             "/api/documents/rename/**",
@@ -96,6 +101,7 @@ public class SecurityConfig {
                             "/api/paiements/client/**",
                             "/api/paiements/**",
                             "/api/paiements/Tranches/**",
+                            "/api/paiements/tranche/update-montant/**",
                             "/api/Credential/GetAllCredentials",
                             "/api/Credential/Clients/**",
                             "/api/Credential/createCredential/**",
@@ -105,7 +111,13 @@ public class SecurityConfig {
                             "/api/Universite-Credential/deleteUniversiteCredential/**",
                             "/api/Universite-Credential/getUniversiteCredentialById/**",
                             "/api/Universite-Credential/UpdateUniversiteCredential/**",
-                            "/api/Universite-Credential/credential/**"
+                            "/api/Universite-Credential/credential/**",
+                            "/api/RDV/credential/**",
+                            "/api/RDV/deleteRdvCredential/**",
+                            "/api/RDV/getRDVById/**",
+                            "/api/RDV/updateRDV/**",
+                            "/api/RDV/RDVs/**"
+
                     ).permitAll()
                     .anyRequest().authenticated()
             )

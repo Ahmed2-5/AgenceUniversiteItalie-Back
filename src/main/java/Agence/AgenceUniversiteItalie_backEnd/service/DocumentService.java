@@ -1,6 +1,7 @@
 package Agence.AgenceUniversiteItalie_backEnd.service;
 
 
+import Agence.AgenceUniversiteItalie_backEnd.entity.Archive;
 import Agence.AgenceUniversiteItalie_backEnd.entity.ClientDocument;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
 import Agence.AgenceUniversiteItalie_backEnd.entity.EnumRole;
@@ -170,5 +171,30 @@ public class DocumentService {
         return documentRepository.save(document);
     }
 
+    @Transactional
+    public ClientDocument archiveDoc(Long idDOc){
+    	ClientDocument doc = documentRepository.findById(idDOc)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"ce document est n'est pas trouver"));
+
+        if (doc.getArchiveDoc() == Archive.ARCHIVER){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"ce document est deja archivé");
+        }
+
+        doc.setArchiveDoc(Archive.ARCHIVER);
+        return documentRepository.save(doc);
+    }
+    
+    @Transactional
+    public ClientDocument unarchiveDoc(Long idDOc){
+    	ClientDocument doc = documentRepository.findById(idDOc)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"ce document est n'est pas trouver"));
+
+        if (doc.getArchiveDoc() == Archive.NON_ARCHIVER){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"ce document est deja non archivé");
+        }
+
+        doc.setArchiveDoc(Archive.NON_ARCHIVER);
+        return documentRepository.save(doc);
+    }
 
 }

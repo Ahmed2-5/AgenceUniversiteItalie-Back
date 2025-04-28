@@ -104,6 +104,7 @@ public class PaiementService {
         }
     }
     
+    @Transactional
     public BigDecimal calculerResteAPayer(Long paiementId) {
         List<Tranche> tranches = getTranchesByPayment(paiementId);
 
@@ -123,40 +124,59 @@ public class PaiementService {
         }
 
         Tranche tranche = trancheRepository.findById(idTranche)
-                .orElseThrow(() -> new RuntimeException(" la tranche est introvable"));
+                .orElseThrow(() -> new RuntimeException("La tranche est introvable"));
 
         Payement payement = tranche.getPayement();
 
         tranche.setMontant(nouveauMontant);
+        tranche.setMontantFixe(true); // ✅ Mark this tranche as fixed
         trancheRepository.save(tranche);
 
-        BigDecimal totalRestant = payement.getMontantaTotal().subtract(nouveauMontant);
-
         List<Tranche> autresTranches = payement.getTranches().stream()
-                .filter(t-> !t.getIdTranche().equals(idTranche))
-                .sorted((t1,t2)-> Integer.compare(t1.getNumero(),t2.getNumero()))
+                .filter(t -> !t.getIdTranche().equals(idTranche))
+                .filter(t -> !t.isMontantFixe()) // ✅ Only redistribute non-fixed tranches
+                .sorted((t1, t2) -> Integer.compare(t1.getNumero(), t2.getNumero()))
                 .toList();
 
+        BigDecimal montantTotalFixe = payement.getTranches().stream()
+                .filter(Tranche::isMontantFixe)
+                .map(Tranche::getMontant)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalRestant = payement.getMontantaTotal().subtract(montantTotalFixe);
+
         int nbTranchesRestantes = autresTranches.size();
-        if (nbTranchesRestantes >0){
-            BigDecimal montantParTranche = totalRestant.divide(BigDecimal.valueOf(nbTranchesRestantes),2, RoundingMode.HALF_UP);
+        if (nbTranchesRestantes > 0) {
+            BigDecimal montantParTranche = totalRestant.divide(BigDecimal.valueOf(nbTranchesRestantes), 2, RoundingMode.HALF_UP);
             BigDecimal cumul = BigDecimal.ZERO;
 
-            for (int i = 0 ; i < nbTranchesRestantes; i++){
+            for (int i = 0; i < nbTranchesRestantes; i++) {
                 Tranche t = autresTranches.get(i);
-                if (i == nbTranchesRestantes -1){
+                if (i == nbTranchesRestantes - 1) {
                     t.setMontant(totalRestant.subtract(cumul));
-                }else {
+                } else {
                     t.setMontant(montantParTranche);
                     cumul = cumul.add(montantParTranche);
                 }
                 trancheRepository.save(t);
             }
         }
+
+        List<Tranche> tranchesToDelete = payement.getTranches().stream()
+                .filter(t -> t.getMontant() != null && t.getMontant().compareTo(BigDecimal.ZERO) == 0)
+                .toList();
+
+        if (!tranchesToDelete.isEmpty()) {
+            trancheRepository.deleteAll(tranchesToDelete);
+            payement.getTranches().removeAll(tranchesToDelete); // optional but keeps object model clean
+        }
+        
         payement.mettreAJourLeReste();
         paymentRepository.save(payement);
-
     }
+
+
+
 
 
 
