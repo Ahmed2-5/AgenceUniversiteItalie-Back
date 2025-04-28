@@ -66,7 +66,7 @@ public class CredentialService {
         credential.setProgrammeEtude(credentialDetails.getProgrammeEtude());
         credential.setPreInscrit(credentialDetails.getPreInscrit());
      //   credential.setMontantPayerItalie(credentialDetails.getMontantPayerItalie());
-
+        credential.getClients().setProgrammedEtude(credentialDetails.getProgrammeEtude());
         return credentialRepository.save(credential);
     }
 

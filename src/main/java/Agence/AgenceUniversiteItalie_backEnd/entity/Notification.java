@@ -15,6 +15,8 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idnotif;
     
+    private String typeNotif;
+
     private String notifLib;
     private Long userId;
     private Long createdby;

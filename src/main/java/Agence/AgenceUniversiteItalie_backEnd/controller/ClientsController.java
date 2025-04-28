@@ -43,11 +43,10 @@ public class ClientsController {
     @PostMapping("/CreateClient")
     public ResponseEntity<?> createClient(@RequestBody Clients client,
                                           @RequestParam String adminEmail,
-                                          @RequestParam String assignedAdminTunisie,
-                                          @RequestParam String assignedAdminItalie) {
+                                          @RequestParam String assignedAdminTunisie) {
 
         try {
-            Clients createdClient = clientsService.clientsCreated(client, adminEmail,assignedAdminTunisie,assignedAdminItalie);
+            Clients createdClient = clientsService.clientsCreated(client, adminEmail,assignedAdminTunisie);
             return ResponseEntity.ok(createdClient);
         }catch (Exception e) {
             e.printStackTrace();

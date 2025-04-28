@@ -55,7 +55,7 @@ public class SecurityConfig {
                             "/oauth2/**",
                             "/api/password/reset",
                             "/api/password/forgot",
-                            "/getNotifications",
+                            "/getNotifications/**",
                             "/getNotificationsByIsReadedOrNot/**",
                             "/createNotification",
                             "/getcreatedusers/**",

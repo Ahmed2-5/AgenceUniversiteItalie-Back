@@ -33,7 +33,7 @@ public class Credential {
     private String programmeEtude;
 
     @Enumerated(EnumType.STRING)
-    private PreInscrit preInscrit; // if done envoyer une notification pour upload le dossier
+    private PreInscrit preInscrit= PreInscrit.PAS_ENCORE; // if done envoyer une notification pour upload le dossier
 
     // sauf pour les admin italie.
   //  private int montantPayerItalie;
