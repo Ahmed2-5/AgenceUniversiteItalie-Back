@@ -261,6 +261,41 @@ public class ClientsService {
     }
 
 
+    @Transactional
+    public Clients assignClientToAdminItalie(Long clientId, String adminEmail) {
+        Clients client = clientsRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
+
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(adminEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Admin Italie not found"));
+
+        if (!admin.getRole().getLibelleRole().equals(EnumRole.ADMIN_ITALIE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This user is not an Admin Italie");
+        }
+
+        client.setAssignedToItalie(admin);
+        return clientsRepository.save(client);
+    }
+
+    @Transactional
+    public Clients removeClientFromAdminItalie(Long clientId, String adminEmail) {
+        Clients client = clientsRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
+
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(adminEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Admin Italie not found"));
+
+        if (!admin.getRole().getLibelleRole().equals(EnumRole.ADMIN_ITALIE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This user is not an Admin Italie");
+        }
+
+        if (client.getAssignedToItalie() == null || !client.getAssignedToItalie().getIdUtilisateur().equals(admin.getIdUtilisateur())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This client is not assigned to the given Admin Italie");
+        }
+
+        client.setAssignedToItalie(null);
+        return clientsRepository.save(client);
+    }
 
 
 

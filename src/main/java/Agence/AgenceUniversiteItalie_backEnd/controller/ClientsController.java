@@ -220,6 +220,20 @@ public class ClientsController {
                 .body(resource);
     }
 
+    @PostMapping("/{clientId}/assign-italie")
+    public Clients assignClientToAdminItalie(
+            @PathVariable Long clientId,
+            @RequestParam String adminEmail) {
+        return clientsService.assignClientToAdminItalie(clientId, adminEmail);
+    }
+
+    // 📌 Remove client from Admin Italie
+    @PostMapping("/{clientId}/remove-italie")
+    public Clients removeClientFromAdminItalie(
+            @PathVariable Long clientId,
+            @RequestParam String adminEmail) {
+        return clientsService.removeClientFromAdminItalie(clientId, adminEmail);
+    }
 
 
 
