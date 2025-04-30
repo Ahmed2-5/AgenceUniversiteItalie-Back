@@ -4,12 +4,16 @@ package Agence.AgenceUniversiteItalie_backEnd.controller;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Payement;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Tranche;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import Agence.AgenceUniversiteItalie_backEnd.service.ClientsService;
 import Agence.AgenceUniversiteItalie_backEnd.service.PaiementService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -26,6 +30,8 @@ public class PaiementController {
 
     @Autowired
     private ClientsRepository clientsRepository;
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
 
     @PostMapping("/ajouterPayment")
@@ -34,6 +40,7 @@ public class PaiementController {
             Long clientId = Long.valueOf(request.get("clientId").toString());
             BigDecimal montant = new BigDecimal(request.get("montant").toString());
             int nombreTranche = Integer.parseInt(request.get("nombreTranches").toString());
+
 
 
             Clients clients = clientsRepository.findById(clientId).orElseThrow(()-> new RuntimeException("Client non trouver"));
@@ -80,6 +87,7 @@ public class PaiementController {
     @PostMapping("/Tranches/{trancheId}/payer")
     public ResponseEntity<Void> payerTranche(@PathVariable Long trancheId){
         try {
+
             paiementService.reglerTranche(trancheId);
             return ResponseEntity.ok().build();
         }catch (Exception e){

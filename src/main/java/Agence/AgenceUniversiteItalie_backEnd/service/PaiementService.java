@@ -39,11 +39,14 @@ public class PaiementService {
     private EmailService emailService;
     @Autowired
     private UtilisateurRepository utilisateurRepository;
+    @Autowired
+    private LogActionService logActionService;
 
 
     @Transactional
     public Payement creerPayment(Clients client, BigDecimal montant, int nombreTranches) {
         if (nombreTranches < 1 || nombreTranches > 5) {
+ 
             throw new IllegalArgumentException("Nombre de tranches invalide");
         }
 
@@ -69,6 +72,7 @@ public class PaiementService {
         }
 
         return savedPayment;
+
     }
 
     
@@ -128,6 +132,11 @@ public class PaiementService {
         Tranche tranche = trancheRepository.findById(idTranche)
                 .orElseThrow(() -> new RuntimeException("Tranche non trouvée"));
 
+        Payement payement = tranche.getPayement();
+        Clients clients = payement.getClient();
+        int numeroTranche = tranche.getNumero();
+        BigDecimal montantTranche = tranche.getMontant();
+
         tranche.marquerCommePayer();
         tranche.setMontantFixe(true);
 
@@ -151,6 +160,7 @@ public class PaiementService {
 
             notifrep.save(notif);
         }
+
     }
 
 
