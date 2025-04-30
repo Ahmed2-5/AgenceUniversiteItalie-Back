@@ -4,6 +4,7 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 import Agence.AgenceUniversiteItalie_backEnd.entity.*;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.CredentialRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.NotificationRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.TacheRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,6 +32,8 @@ public class ClientsService {
     @Autowired
     private TacheRepository tacheRepository;
 
+    @Autowired
+    private NotificationRepository notifrep;
     /**
      *
      * @param clients
@@ -65,6 +68,34 @@ public class ClientsService {
 
        emptyCredential.setClients(clients);
        Clients savedClient = clientsRepository.save(clients);
+       
+    // Get full name of the creator
+       String createurFullName = createur.getPrenom() + " " + createur.getNom();
+       String clientFullName = savedClient.getPrenomClient() + " " + savedClient.getNomClient();
+
+       // 🔔 Notify Assigned Admin Tunisie
+       Notification notifAdminTunisie = new Notification();
+       notifAdminTunisie.setNotifLib("Nouveau client ajouté");
+       notifAdminTunisie.setTypeNotif("CLIENT");
+       notifAdminTunisie.setUserId(adminTunisie.getIdUtilisateur());
+       notifAdminTunisie.setCreatedby(createur.getIdUtilisateur());
+       notifAdminTunisie.setMessage("Un nouveau client (" + clientFullName + ") vous a été assigné par " + createurFullName);
+       notifAdminTunisie.setNotificationDate(LocalDateTime.now());
+       notifAdminTunisie.setReaded(false);
+       notifrep.save(notifAdminTunisie);
+
+       // 🔔 Notify Creator (Super Admin or Admin)
+       Notification notifCreateur = new Notification();
+       notifCreateur.setNotifLib("Client créé");
+       notifCreateur.setTypeNotif("CLIENT");
+       notifCreateur.setUserId(createur.getIdUtilisateur());
+       notifCreateur.setCreatedby(createur.getIdUtilisateur());
+       notifCreateur.setMessage("Un nouveau client : " + clientFullName + " (assigné à " + adminTunisie.getNom() + " " + adminTunisie.getPrenom() + ")"+" Créé par "+ createurFullName);
+       notifCreateur.setNotificationDate(LocalDateTime.now());
+       notifCreateur.setReaded(false);
+       notifrep.save(notifCreateur);
+
+       
        createAutomaticTaskForClient(savedClient,adminTunisie,createur);
        return savedClient;
     }
@@ -89,6 +120,18 @@ public class ClientsService {
         task.getAssignedAdmins().add(adminTunisie);
 
         tacheRepository.save(task);
+        
+     // 🔔 Notification to Admin Tunisie for the new task
+        Notification notif = new Notification();
+        notif.setNotifLib("Nouvelle tâche assignée");
+        notif.setTypeNotif("TASK");
+        notif.setUserId(adminTunisie.getIdUtilisateur());
+        notif.setCreatedby(creator.getIdUtilisateur());
+        notif.setMessage("Une nouvelle tâche vous a été assignée pour le client : " +
+                         client.getNomClient() + " " + client.getPrenomClient());
+        notif.setNotificationDate(LocalDateTime.now());
+        notif.setReaded(false);
+        notifrep.save(notif);
     }
 
 
@@ -100,29 +143,73 @@ public class ClientsService {
      * @return Updating the Clients Details
      */
     @Transactional
-    public Clients updateClient(Clients clientDetails ,Long idClient){
+    public Clients updateClient(Clients clientDetails, Long idClient, String updatedByEmail) {
 
-        Clients clients = clientsRepository.findById(idClient)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"client not found"));
+        Clients client = clientsRepository.findById(idClient)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
 
-        clients.setNomClient(clientDetails.getNomClient());
-        clients.setPrenomClient((clientDetails.getPrenomClient()));
-        clients.setEmailClient(clientDetails.getEmailClient());
-        clients.setAdresseClient(clientDetails.getAdresseClient());
-        clients.setVilleClient(clientDetails.getVilleClient());
-        clients.setTelephoneClient(clientDetails.getTelephoneClient());
-        clients.setCodePostale(clientDetails.getCodePostale());
-        clients.setDateNaissanceClient(clientDetails.getDateNaissanceClient());
-        clients.setLangue(clientDetails.getLangue());
-        clients.setService(clientDetails.getService());
-        clients.setReference(clientDetails.getReference());
-        clients.setVilleItalie(clientDetails.getVilleItalie());
-        clients.setProgrammedEtude(clientDetails.getProgrammedEtude());
-        if(clientDetails.getAssignedToTunisie() !=null){ clients.setAssignedToTunisie(clientDetails.getAssignedToTunisie());}
-        if (clientDetails.getAssignedToItalie() != null){clients.setAssignedToItalie(clientDetails.getAssignedToItalie());}
-        clients.getCredential().setProgrammeEtude(clientDetails.getProgrammedEtude());
-        return clientsRepository.save(clients);
+        EnumTypeService oldService = client.getService(); // Track old service
+
+        // Update basic info
+        client.setNomClient(clientDetails.getNomClient());
+        client.setPrenomClient(clientDetails.getPrenomClient());
+        client.setEmailClient(clientDetails.getEmailClient());
+        client.setAdresseClient(clientDetails.getAdresseClient());
+        client.setVilleClient(clientDetails.getVilleClient());
+        client.setTelephoneClient(clientDetails.getTelephoneClient());
+        client.setCodePostale(clientDetails.getCodePostale());
+        client.setDateNaissanceClient(clientDetails.getDateNaissanceClient());
+        client.setLangue(clientDetails.getLangue());
+        client.setService(clientDetails.getService());
+        client.setReference(clientDetails.getReference());
+        client.setVilleItalie(clientDetails.getVilleItalie());
+        client.setProgrammedEtude(clientDetails.getProgrammedEtude());
+
+        if (clientDetails.getAssignedToTunisie() != null) {
+            client.setAssignedToTunisie(clientDetails.getAssignedToTunisie());
+        }
+
+        if (clientDetails.getAssignedToItalie() != null) {
+            client.setAssignedToItalie(clientDetails.getAssignedToItalie());
+        }
+
+        if (client.getCredential() != null) {
+            client.getCredential().setProgrammeEtude(clientDetails.getProgrammedEtude());
+        }
+
+        Clients updatedClient = clientsRepository.save(client);
+
+        // Now handle service change notification
+        if (oldService != client.getService()) {
+            Utilisateur updatedBy = utilisateurRepository.findByAdresseMail(updatedByEmail)
+                    .orElseThrow(() -> new RuntimeException("Utilisateur not found"));
+
+            Utilisateur recipient = null;
+
+            if (updatedBy.getRole().getLibelleRole().equals(EnumRole.ADMIN_TUNISIE)) {
+                recipient = utilisateurRepository.findById(1L)
+                        .orElseThrow(() -> new RuntimeException("Super Admin not found"));
+            } else if (updatedBy.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN)) {
+                recipient = client.getAssignedToTunisie(); // can be null
+            }
+
+            if (recipient != null) {
+                Notification notif = new Notification();
+                notif.setNotifLib("Changement de service client");
+                notif.setTypeNotif("CLIENT");
+                notif.setCreatedby(updatedBy.getIdUtilisateur());
+                notif.setUserId(recipient.getIdUtilisateur());
+                notif.setMessage("Le client " + client.getNomClient() + " " + client.getPrenomClient()
+                        + " a changé de service : de " + oldService + " à " + client.getService());
+                notif.setNotificationDate(LocalDateTime.now());
+                notif.setReaded(false);
+                notifrep.save(notif);
+            }
+        }
+
+        return updatedClient;
     }
+
 
     /**
      *
@@ -274,7 +361,24 @@ public class ClientsService {
         }
 
         client.setAssignedToItalie(admin);
-        return clientsRepository.save(client);
+        Clients updatedClient = clientsRepository.save(client);
+
+        Utilisateur superAdmin = utilisateurRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Super admin not found"));
+        // 🔔 Notify the assigned Admin Italie
+        Notification notif = new Notification();
+        notif.setNotifLib("Affectation d'un client");
+        notif.setTypeNotif("CLIENT");
+        notif.setUserId(superAdmin.getIdUtilisateur());
+        notif.setCreatedby(admin.getIdUtilisateur()); // Optional: if there's a known initiator, set their ID
+        notif.setMessage("Le client " + client.getNomClient() + " " + client.getPrenomClient() +
+                " a été assigné à l'admin Italie : " + admin.getPrenom() + " " + admin.getNom());
+        notif.setNotificationDate(LocalDateTime.now());
+        notif.setReaded(false);
+        notifrep.save(notif);
+
+        return updatedClient;
+
     }
 
     @Transactional
@@ -282,21 +386,95 @@ public class ClientsService {
         Clients client = clientsRepository.findById(clientId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
 
-        Utilisateur admin = utilisateurRepository.findByAdresseMail(adminEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Admin Italie not found"));
+        Utilisateur actor = utilisateurRepository.findByAdresseMail(adminEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Admin Italie or Super Admin not found"));
 
-        if (!admin.getRole().getLibelleRole().equals(EnumRole.ADMIN_ITALIE)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This user is not an Admin Italie");
-        }
-
-        if (client.getAssignedToItalie() == null || !client.getAssignedToItalie().getIdUtilisateur().equals(admin.getIdUtilisateur())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This client is not assigned to the given Admin Italie");
-        }
-
+        Utilisateur adminItalie = client.getAssignedToItalie();
         client.setAssignedToItalie(null);
-        return clientsRepository.save(client);
+        Clients updatedClient = clientsRepository.save(client);
+
+        Utilisateur superAdmin = utilisateurRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Super admin not found"));
+
+        Notification notif = new Notification();
+        notif.setTypeNotif("CLIENT");
+        notif.setNotificationDate(LocalDateTime.now());
+        notif.setReaded(false);
+        notif.setCreatedby(actor.getIdUtilisateur());
+
+        if (actor.getRole().getLibelleRole().equals(EnumRole.ADMIN_ITALIE)) {
+            // Admin Italie removed the client => Notify Super Admin
+            notif.setNotifLib("Client désassigné par Admin Italie");
+            notif.setUserId(superAdmin.getIdUtilisateur());
+            notif.setMessage("L'administrateur Italie " + actor.getPrenom() + " " + actor.getNom() +
+                    " a désassigné le client : " + client.getPrenomClient() + " " + client.getNomClient());
+        } else if (actor.getRole().getLibelleRole().equals(EnumRole.SUPER_ADMIN) && adminItalie != null) {
+            // Super Admin removed the client => Notify the Admin Italie who was unassigned
+            notif.setNotifLib("Client désassigné");
+            notif.setUserId(adminItalie.getIdUtilisateur());
+            notif.setMessage("Le client " + client.getNomClient() + " " + client.getPrenomClient() +
+                    " vous a été désassigné par le Super Admin.");
+        }
+
+        notifrep.save(notif);
+        return updatedClient;
     }
 
+
+    @Transactional
+    public Clients UpdateAssignClientToAdminTunisie(Long clientId, String adminEmail, String superAdminEmail) {
+        Clients client = clientsRepository.findById(clientId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
+
+        Utilisateur newAdmin = utilisateurRepository.findByAdresseMail(adminEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Admin Tunisie not found"));
+
+        Utilisateur superAdmin = utilisateurRepository.findByAdresseMail(superAdminEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Super Admin not found"));
+
+        if (!newAdmin.getRole().getLibelleRole().equals(EnumRole.ADMIN_TUNISIE)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "This user is not an Admin Tunisie");
+        }
+
+        // 🧠 Save reference to old Admin Tunisie before reassigning
+        Utilisateur oldAdmin = client.getAssignedToTunisie();
+
+        // 🔁 Reassign
+        client.setAssignedToTunisie(null);
+        client.setAssignedToTunisie(newAdmin);
+        createAutomaticTaskForClient(client, newAdmin, superAdmin);
+        Clients updatedClient = clientsRepository.save(client);
+
+        // 🔔 Notify new assigned Admin Tunisie
+        Notification notifNew = new Notification();
+        notifNew.setNotifLib("Client assigné");
+        notifNew.setTypeNotif("CLIENT");
+        notifNew.setUserId(newAdmin.getIdUtilisateur());
+        notifNew.setCreatedby(superAdmin.getIdUtilisateur());
+        notifNew.setMessage("Vous avez été assigné au client : " +
+                            client.getNomClient() + " " + client.getPrenomClient() +
+                            " par " + superAdmin.getNom() + " " + superAdmin.getPrenom());
+        notifNew.setNotificationDate(LocalDateTime.now());
+        notifNew.setReaded(false);
+        notifrep.save(notifNew);
+
+        // 🔔 Notify old Admin Tunisie if different from the new one
+        if (oldAdmin != null) {
+            Notification notifOld = new Notification();
+            notifOld.setNotifLib("Client réassigné");
+            notifOld.setTypeNotif("CLIENT");
+            notifOld.setUserId(oldAdmin.getIdUtilisateur());
+            notifOld.setCreatedby(superAdmin.getIdUtilisateur());
+            notifOld.setMessage("Le client " + client.getNomClient() + " " + client.getPrenomClient() +
+                                " vous a été retiré par le Super Admin et réassigné à " +
+                                newAdmin.getNom() + " " + newAdmin.getPrenom());
+            notifOld.setNotificationDate(LocalDateTime.now());
+            notifOld.setReaded(false);
+            notifrep.save(notifOld);
+        }
+
+        return updatedClient;
+    }
 
 
 

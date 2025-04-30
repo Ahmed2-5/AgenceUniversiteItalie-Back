@@ -50,6 +50,8 @@ public class UniversiteCredentialService {
         universiteCredential.setNomUniversite(universiteCredentialDetails.getNomUniversite());
         universiteCredential.setEmailUniversite(universiteCredentialDetails.getEmailUniversite());
         universiteCredential.setPasswordUniversite(universiteCredentialDetails.getPasswordUniversite());
+        universiteCredential.setCommunication(universiteCredentialDetails.getCommunication());
+        universiteCredential.setCommunicationDescripton(universiteCredentialDetails.getCommunicationDescripton());
 
         return universiteCredentialRepository.save(universiteCredential);
     }

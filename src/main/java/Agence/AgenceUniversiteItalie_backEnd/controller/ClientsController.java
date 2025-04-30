@@ -57,8 +57,9 @@ public class ClientsController {
 
     @PutMapping(value = "/UpdateClients/{idClient}")
     public Clients updateClient(@RequestBody Clients clientDetails,
-                                          @PathVariable Long idClient){
-        return clientsService.updateClient(clientDetails,idClient);
+                                @PathVariable Long idClient,
+                                @RequestParam String updatedByEmail){
+        return clientsService.updateClient(clientDetails,idClient,updatedByEmail);
     }
 
     @DeleteMapping("/deleteClient/{idC}")
@@ -235,6 +236,14 @@ public class ClientsController {
         return clientsService.removeClientFromAdminItalie(clientId, adminEmail);
     }
 
+    @PostMapping("/{clientId}/updateassign-tunisie")
+    public Clients UpdateAssignClientToAdminTunisie(
+            @PathVariable Long clientId,
+            @RequestParam String adminEmail,
+            @RequestParam String superadminEmail
+            ) {
+        return clientsService.UpdateAssignClientToAdminTunisie(clientId, adminEmail,superadminEmail);
+    }
 
 
 }

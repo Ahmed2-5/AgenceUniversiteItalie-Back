@@ -45,6 +45,15 @@ public class PaiementController {
         }
     }
 
+    @PostMapping("/{idPayement}/add-tranche-manual")
+    public ResponseEntity<String> ajouterTrancheManuellement(
+            @PathVariable Long idPayement,
+            @RequestBody Tranche tranche) {
+
+    	paiementService.ajouterTrancheToPayement(idPayement, tranche);
+        return ResponseEntity.ok("✅ Tranche ajoutée manuellement.");
+    }
+
     @GetMapping("/client/{clientId}")
     public ResponseEntity<List<Payement>> getPaiementByClient(@PathVariable Long clientId){
         try {

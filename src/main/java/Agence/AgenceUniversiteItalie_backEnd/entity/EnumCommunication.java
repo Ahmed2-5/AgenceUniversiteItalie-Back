@@ -1,5 +1,5 @@
 package Agence.AgenceUniversiteItalie_backEnd.entity;
 
 public enum EnumCommunication {
- OUI,NON
+ PAS_ENCORE,OUI,NON
 }

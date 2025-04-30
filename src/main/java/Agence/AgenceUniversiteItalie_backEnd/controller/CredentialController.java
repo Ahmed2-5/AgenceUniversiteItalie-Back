@@ -57,9 +57,9 @@ public class CredentialController {
     }
 
     @PutMapping("/{credentialId}")
-    public ResponseEntity<Credential> updateCredential(@PathVariable Long credentialId, @RequestBody Credential credentialDetails) {
+    public ResponseEntity<Credential> updateCredential(@PathVariable Long credentialId, @RequestBody Credential credentialDetails,@RequestParam String updatedByEmail) {
         try {
-            Credential updatedCredential = credentialService.updateCredential(credentialId, credentialDetails);
+            Credential updatedCredential = credentialService.updateCredential(credentialId, credentialDetails,updatedByEmail);
             return new ResponseEntity<>(updatedCredential, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
