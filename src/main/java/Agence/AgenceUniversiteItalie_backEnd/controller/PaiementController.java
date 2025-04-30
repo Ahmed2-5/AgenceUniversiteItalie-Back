@@ -33,19 +33,23 @@ public class PaiementController {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @PostMapping("/ajouterPayment")
-    public ResponseEntity<Payement> creePaiement(@RequestBody Map<String, Object> request){
+    public ResponseEntity<Payement> creePaiement(@RequestBody Map<String, Object> request, Authentication authentication){
         try {
             Long clientId = Long.valueOf(request.get("clientId").toString());
             BigDecimal montant = new BigDecimal(request.get("montant").toString());
             int nombreTranche = Integer.parseInt(request.get("nombreTranches").toString());
 
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+
 
 
             Clients clients = clientsRepository.findById(clientId).orElseThrow(()-> new RuntimeException("Client non trouver"));
 
-            Payement payement = paiementService.creerPayment(clients, montant, nombreTranche);
+            Payement payement = paiementService.creerPayment(clients, montant, nombreTranche,admin);
             return ResponseEntity.status(HttpStatus.CREATED).body(payement);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -83,12 +87,15 @@ public class PaiementController {
     }
 
 
-    // hedhi mtaa eli tbadel el status ahaya
-    @PostMapping("/Tranches/{trancheId}/payer")
-    public ResponseEntity<Void> payerTranche(@PathVariable Long trancheId){
-        try {
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
 
-            paiementService.reglerTranche(trancheId);
+    @PostMapping("/Tranches/{trancheId}/payer")
+    public ResponseEntity<Void> payerTranche(@PathVariable Long trancheId, Authentication authentication){
+        try {
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+            paiementService.reglerTranche(trancheId,admin);
             return ResponseEntity.ok().build();
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

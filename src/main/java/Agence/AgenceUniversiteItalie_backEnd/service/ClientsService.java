@@ -158,7 +158,7 @@ public class ClientsService {
      * @return Updating the Clients Details
      */
     @Transactional
-    public Clients updateClient(Clients clientDetails, Long idClient, String updatedByEmail) {
+    public Clients updateClient(Clients clientDetails, Long idClient, String updatedByEmail, Utilisateur admin) {
 
         Clients client = clientsRepository.findById(idClient)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
@@ -195,8 +195,9 @@ public class ClientsService {
         Clients updatedClient = clientsRepository.save(client);
 
         // Now handle service change notification
+        Utilisateur updatedBy = null;
         if (oldService != client.getService()) {
-            Utilisateur updatedBy = utilisateurRepository.findByAdresseMail(updatedByEmail)
+            updatedBy = utilisateurRepository.findByAdresseMail(updatedByEmail)
                     .orElseThrow(() -> new RuntimeException("Utilisateur not found"));
 
             Utilisateur recipient = null;
@@ -222,9 +223,17 @@ public class ClientsService {
             }
         }
 
+        logActionService.ajouterLog(
+                "Modification du client",
+                "Client mis à jour : " + client.getNomClient() + " " + client.getPrenomClient(),
+                "Client",
+                idClient,
+                admin
+
+        );
+
 
         return updatedClient;
-
 
 
     }

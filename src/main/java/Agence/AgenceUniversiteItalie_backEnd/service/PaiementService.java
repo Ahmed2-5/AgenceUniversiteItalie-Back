@@ -42,9 +42,9 @@ public class PaiementService {
     @Autowired
     private LogActionService logActionService;
 
-
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @Transactional
-    public Payement creerPayment(Clients client, BigDecimal montant, int nombreTranches) {
+    public Payement creerPayment(Clients client, BigDecimal montant, int nombreTranches, Utilisateur admin) {
         if (nombreTranches < 1 || nombreTranches > 5) {
  
             throw new IllegalArgumentException("Nombre de tranches invalide");
@@ -70,6 +70,16 @@ public class PaiementService {
 
             notifrep.save(notif);
         }
+
+        logActionService.ajouterLog(
+                "Creation paiement",
+                "Paiement créé pour le client :" + client.getNomClient() + " " + client.getPrenomClient() +
+                        " - Montant: " + montant + " - Nombre de tranches: " + nombreTranches,
+                "paiement",
+                savedPayment.getIdPayement(),
+                admin
+
+        );
 
         return savedPayment;
 
@@ -126,9 +136,9 @@ public class PaiementService {
         notifrep.save(notif);
     }
 
-
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @Transactional
-    public void reglerTranche(Long idTranche) {
+    public void reglerTranche(Long idTranche, Utilisateur admin) {
         Tranche tranche = trancheRepository.findById(idTranche)
                 .orElseThrow(() -> new RuntimeException("Tranche non trouvée"));
 
@@ -160,6 +170,14 @@ public class PaiementService {
 
             notifrep.save(notif);
         }
+
+        logActionService.ajouterLog(
+                "Réglement tranche",
+                "Tranche" + numeroTranche + " réglée pour le client : " + clients.getNomClient() + " " + clients.getPrenomClient() + " -Montant: " + montantTranche,
+                "Paiement",
+                idTranche,
+                admin
+        );
 
     }
 

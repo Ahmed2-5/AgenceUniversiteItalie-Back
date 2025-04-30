@@ -77,7 +77,7 @@ public class CredentialService {
     }
 
     @Transactional
-    public Credential updateCredential(Long credentialId, Credential credentialDetails, String updatedByEmail) {
+    public Credential updateCredential(Long credentialId, Credential credentialDetails, String updatedByEmail, Utilisateur admin) {
 
         Credential credential = credentialRepository.findById(credentialId)
                 .orElseThrow(() -> new RuntimeException("Credential not found"));
@@ -123,6 +123,14 @@ public class CredentialService {
                 
             
         }
+
+        logActionService.ajouterLog(
+                "Ajouter Credential for client",
+                "Ajout du Credential pour le client" + credential.getClients().getNomClient()+ " " + credential.getClients().getPrenomClient(),
+                "credential",
+                updatedCredential.getIdCredential(),
+                admin
+        );
 
         return updatedCredential;
 

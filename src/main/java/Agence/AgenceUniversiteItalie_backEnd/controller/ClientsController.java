@@ -64,12 +64,14 @@ public class ClientsController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-/////////////////////////////////////////////Changement here //////////////////////////
+
     @PutMapping(value = "/UpdateClients/{idClient}")
     public Clients updateClient(@RequestBody Clients clientDetails,
                                 @PathVariable Long idClient,
                                 @RequestParam String updatedByEmail){
-        return clientsService.updateClient(clientDetails,idClient,updatedByEmail);
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(updatedByEmail)
+                .orElseThrow(()-> new EntityNotFoundException("Admin not found"));
+        return clientsService.updateClient(clientDetails,idClient,updatedByEmail,admin);
     }
 
     @DeleteMapping("/deleteClient/{idC}")
@@ -153,9 +155,10 @@ public class ClientsController {
         }
     }
 
-
+///////////////////////////////// Hedhi sar fiha Modification ////////////////////////////////////////////////
     @PutMapping("/{idClient}/archive")
     public ResponseEntity<?> archiverClient(@PathVariable Long idClient,
+                                            //zedet hedhi
                                             Authentication authentication){
         try {
             String email = authentication.getName();

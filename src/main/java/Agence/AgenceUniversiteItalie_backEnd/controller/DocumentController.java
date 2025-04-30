@@ -32,7 +32,7 @@ public class DocumentController {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
-//// hedhi zeda
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ClientDocument> uploadDocument(
             @RequestParam("file")MultipartFile file,
@@ -73,6 +73,7 @@ public class DocumentController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
         }
     }
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
 
     @PatchMapping("rename/{idDocument}")
     public ResponseEntity<ClientDocument> renameDocument(@PathVariable Long idDocument,
@@ -144,6 +145,7 @@ public class DocumentController {
         }
     }
 
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
 
     @PutMapping("/{idDOc}/archive")
     public ResponseEntity<?> archiverDoc(@PathVariable Long idDOc,
