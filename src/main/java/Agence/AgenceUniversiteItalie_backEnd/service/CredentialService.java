@@ -3,6 +3,7 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Credential;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.CredentialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class CredentialService {
     @Autowired
     private ClientsRepository clientsRepository;
 
+    @Autowired
+    private LogActionService logActionService;
+
     public List<Credential> getAllCredentials() {
         return credentialRepository.findAll();
     }
@@ -35,7 +39,7 @@ public class CredentialService {
     }
 
     @Transactional
-    public Credential createCredential(Long clientId, Credential credential) {
+    public Credential createCredential(Long clientId, Credential credential  , Utilisateur admin) {
 
         Clients clients = clientsRepository.findById(clientId).orElseThrow(()-> new RuntimeException("Client not found"));
 
@@ -49,11 +53,20 @@ public class CredentialService {
         Credential savedCredential = credentialRepository.save(credential);
         clientsRepository.save(clients);
 
+       logActionService.ajouterLog(
+             "Ajouter Credential for client",
+             "Ajout du Credential pour le client" + clients.getNomClient()+ " " + clients.getPrenomClient(),
+             "credential",
+             savedCredential.getIdCredential(),
+             admin
+        );
+
+
         return savedCredential;
     }
 
     @Transactional
-    public Credential updateCredential(Long credentialId, Credential credentialDetails) {
+    public Credential updateCredential(Long credentialId, Credential credentialDetails , Utilisateur admin ) {
 
         Credential credential = credentialRepository.findById(credentialId).orElseThrow(()-> new RuntimeException("Credential not found"));
 
@@ -65,9 +78,25 @@ public class CredentialService {
         credential.setPasswordPrenotami(credentialDetails.getPasswordPrenotami());
         credential.setProgrammeEtude(credentialDetails.getProgrammeEtude());
         credential.setPreInscrit(credentialDetails.getPreInscrit());
-     //   credential.setMontantPayerItalie(credentialDetails.getMontantPayerItalie());
         credential.getClients().setProgrammedEtude(credentialDetails.getProgrammeEtude());
-        return credentialRepository.save(credential);
+
+
+       //return credentialRepository.save(credential);
+
+        Credential CredendialMisAjour = credentialRepository.save(credential);
+
+        logActionService.ajouterLog(
+                "Ajouter Credential for client",
+                "Ajout du Credential pour le client" + credential.getEmailOutlook() + " " + credential.getPasswrodGmail() ,
+                "credential",
+                credentialId,
+                admin
+        );
+
+        return CredendialMisAjour;
+
+
+
     }
 
 

@@ -4,12 +4,16 @@ package Agence.AgenceUniversiteItalie_backEnd.controller;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Payement;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Tranche;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import Agence.AgenceUniversiteItalie_backEnd.service.ClientsService;
 import Agence.AgenceUniversiteItalie_backEnd.service.PaiementService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -26,19 +30,26 @@ public class PaiementController {
 
     @Autowired
     private ClientsRepository clientsRepository;
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
 
     @PostMapping("/ajouterPayment")
-    public ResponseEntity<Payement> creePaiement(@RequestBody Map<String, Object> request){
+    public ResponseEntity<Payement> creePaiement(@RequestBody Map<String, Object> request,
+                                                 Authentication authentication){
         try {
             Long clientId = Long.valueOf(request.get("clientId").toString());
             BigDecimal montant = new BigDecimal(request.get("montant").toString());
             int nombreTranche = Integer.parseInt(request.get("nombreTranches").toString());
 
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+
 
             Clients clients = clientsRepository.findById(clientId).orElseThrow(()-> new RuntimeException("Client non trouver"));
 
-            Payement payement = paiementService.creerPayment(clients, montant, nombreTranche);
+            Payement payement = paiementService.creerPayment(clients, montant, nombreTranche,admin);
             return ResponseEntity.status(HttpStatus.CREATED).body(payement);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -69,9 +80,13 @@ public class PaiementController {
 
     // hedhi mtaa eli tbadel el status ahaya
     @PostMapping("/Tranches/{trancheId}/payer")
-    public ResponseEntity<Void> payerTranche(@PathVariable Long trancheId){
+    public ResponseEntity<Void> payerTranche(@PathVariable Long trancheId,
+                                             Authentication authentication){
         try {
-            paiementService.reglerTranche(trancheId);
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+            paiementService.reglerTranche(trancheId,admin);
             return ResponseEntity.ok().build();
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

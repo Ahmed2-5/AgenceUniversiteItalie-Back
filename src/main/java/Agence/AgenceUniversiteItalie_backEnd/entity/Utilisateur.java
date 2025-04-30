@@ -87,6 +87,11 @@ public class Utilisateur {
     @JsonIgnore
     private List<Clients> clientsAssignedItalie = new ArrayList<>();
 
+
+    @OneToMany(mappedBy = "admin" , cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<LogAction> logActions = new ArrayList<>();
+
     // ajout d'un constructeur
     public Utilisateur(String nom, String prenom, String adresseMail, String motDePasse, Role role) {
         this.nom = nom;

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.swing.text.Document;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +38,9 @@ public class DocumentService {
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
+
+    @Autowired
+    private LogActionService logActionService;
 
     @Value("${app.upload.dir}")
     private String uploadDir;
@@ -61,7 +65,7 @@ public class DocumentService {
      * @throws IOException
      */
     @Transactional
-    public ClientDocument uploadDocument(MultipartFile file , String nom , Long idClient, Long idUtilisateur)throws IOException{
+    public ClientDocument uploadDocument(MultipartFile file , String nom , Long idClient, Long idUtilisateur, Utilisateur admin)throws IOException{
         Clients clients = clientsRepository.findById(idClient)
                 .orElseThrow(()-> new EntityNotFoundException("Cllient not found with this id:"+idClient));
 
@@ -93,13 +97,27 @@ public class DocumentService {
         document.setAjouterPar(utilisateur);
         document.setDateAjout(LocalDateTime.now());
 
-        return documentRepository.save(document);
+        ClientDocument savedDocument = documentRepository.save(document);
+        // partie log
+        logActionService.ajouterLog(
+                "Ajouter document",
+                "Document ' " + nom + " ' ajouté pour le client : " + clients.getNomClient() + " " + clients.getPrenomClient(),
+                "document",
+                savedDocument.getIdDocument(),
+                admin
+
+                );
+
+        return savedDocument;
+
+       // return documentRepository.save(document);
+
 
     }
 
-
+/// hedhi zeda
     @Transactional
-    public ClientDocument updateDocument(Long idDoc, String nouveauNom){
+    public ClientDocument updateDocument(Long idDoc, String nouveauNom , Utilisateur admin  ){
         ClientDocument document = documentRepository.findById(idDoc)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "le document n'est pas trouver"));
 
@@ -115,7 +133,21 @@ public class DocumentService {
         }
 
         document.setNom(nouveauNom);
-        return documentRepository.save(document);
+        //return documentRepository.save(document);
+
+
+      ClientDocument documentMisAjour = documentRepository.save(document);
+
+        logActionService.ajouterLog(
+                "Modification Document",
+                "document modifier Pour "+ document.getClientDocument().getNomClient(),
+                "document",
+                idDoc,
+                admin
+        );
+
+        return documentMisAjour;
+
     }
 
 
@@ -172,7 +204,7 @@ public class DocumentService {
     }
 
     @Transactional
-    public ClientDocument archiveDoc(Long idDOc){
+    public ClientDocument archiveDoc(Long idDOc , Utilisateur admin  ){
     	ClientDocument doc = documentRepository.findById(idDOc)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"ce document est n'est pas trouver"));
 
@@ -181,7 +213,22 @@ public class DocumentService {
         }
 
         doc.setArchiveDoc(Archive.ARCHIVER);
-        return documentRepository.save(doc);
+        //return documentRepository.save(doc);
+
+
+      ClientDocument documentArchiver = documentRepository.save(doc);
+
+        logActionService.ajouterLog(
+                "Archiver Document",
+                "document Archiver Pour  "+ doc.getClientDocument().getNomClient(),
+                "document",
+                idDOc,
+                admin
+        );
+
+        return documentArchiver;
+
+
     }
     
     @Transactional

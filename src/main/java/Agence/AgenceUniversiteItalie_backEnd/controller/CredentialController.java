@@ -2,10 +2,14 @@ package Agence.AgenceUniversiteItalie_backEnd.controller;
 
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.Credential;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
+import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import Agence.AgenceUniversiteItalie_backEnd.service.CredentialService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +21,8 @@ public class CredentialController {
 
     @Autowired
     private CredentialService credentialService;
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
     @GetMapping("GetAllCredentials")
     public ResponseEntity<List<Credential>> getAllCredentials() {
@@ -46,20 +52,30 @@ public class CredentialController {
         }
     }
 
+    //Changement houni zeda
     @PostMapping("/createCredential/{clientId}")
-    public ResponseEntity<Credential> createCredential(@PathVariable Long clientId, @RequestBody Credential credential) {
+    public ResponseEntity<Credential> createCredential(@PathVariable Long clientId, @RequestBody Credential credential,
+                                                       Authentication authentication) {
         try {
-            Credential newCredential = credentialService.createCredential(clientId, credential);
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+            Credential newCredential = credentialService.createCredential(clientId, credential,admin);
             return new ResponseEntity<>(newCredential, HttpStatus.CREATED);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
+    //Changement houni zeda
     @PutMapping("/{credentialId}")
-    public ResponseEntity<Credential> updateCredential(@PathVariable Long credentialId, @RequestBody Credential credentialDetails) {
+    public ResponseEntity<Credential> updateCredential(@PathVariable Long credentialId, @RequestBody Credential credentialDetails,
+                                                       Authentication authentication) {
         try {
-            Credential updatedCredential = credentialService.updateCredential(credentialId, credentialDetails);
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+            Credential updatedCredential = credentialService.updateCredential(credentialId, credentialDetails,admin);
             return new ResponseEntity<>(updatedCredential, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

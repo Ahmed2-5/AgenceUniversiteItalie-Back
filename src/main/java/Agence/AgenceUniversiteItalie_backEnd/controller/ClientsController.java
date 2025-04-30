@@ -4,6 +4,7 @@ package Agence.AgenceUniversiteItalie_backEnd.controller;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Clients;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import Agence.AgenceUniversiteItalie_backEnd.service.ClientsService;
 
 import java.nio.file.Files;
@@ -12,12 +13,16 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +39,9 @@ public class ClientsController {
 
     @Autowired
     private ClientsRepository clientsRepository;
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
+
     /**
      *
      * @param client
@@ -45,20 +53,28 @@ public class ClientsController {
                                           @RequestParam String adminEmail,
                                           @RequestParam String assignedAdminTunisie) {
 
+
         try {
-            Clients createdClient = clientsService.clientsCreated(client, adminEmail,assignedAdminTunisie);
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(adminEmail)
+                    .orElseThrow(()-> new EntityNotFoundException("Admin not found"));
+            Clients createdClient = clientsService.clientsCreated(client, adminEmail,assignedAdminTunisie,admin);
             return ResponseEntity.ok(createdClient);
         }catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-
+/////////////////////////////////////////////Changement here //////////////////////////
     @PutMapping(value = "/UpdateClients/{idClient}")
     public Clients updateClient(@RequestBody Clients clientDetails,
-                                          @PathVariable Long idClient){
-        return clientsService.updateClient(clientDetails,idClient);
+                                @PathVariable Long idClient,
+                                Authentication authentication){
+
+        String email = authentication.getName();
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+
+        return clientsService.updateClient(clientDetails,idClient,admin);
     }
 
     @DeleteMapping("/deleteClient/{idC}")
@@ -144,9 +160,13 @@ public class ClientsController {
 
 
     @PutMapping("/{idClient}/archive")
-    public ResponseEntity<?> archiverClient(@PathVariable Long idClient){
+    public ResponseEntity<?> archiverClient(@PathVariable Long idClient,
+                                            Authentication authentication){
         try {
-            return ResponseEntity.ok(clientsService.archiveClient(idClient));
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+            return ResponseEntity.ok(clientsService.archiveClient(idClient, admin));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
