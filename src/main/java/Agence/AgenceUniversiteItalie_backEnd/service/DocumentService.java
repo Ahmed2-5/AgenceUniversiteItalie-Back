@@ -64,6 +64,7 @@ public class DocumentService {
      * @return Ajouter un Document a un utilisateur
      * @throws IOException
      */
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @Transactional
     public ClientDocument uploadDocument(MultipartFile file , String nom , Long idClient, Long idUtilisateur, Utilisateur admin)throws IOException{
         Clients clients = clientsRepository.findById(idClient)
@@ -115,7 +116,8 @@ public class DocumentService {
 
     }
 
-/// hedhi zeda
+///////////////////////////Modification houni /////////////////////////////////////////////////////
+
     @Transactional
     public ClientDocument updateDocument(Long idDoc, String nouveauNom , Utilisateur admin  ){
         ClientDocument document = documentRepository.findById(idDoc)
@@ -203,6 +205,7 @@ public class DocumentService {
         return documentRepository.save(document);
     }
 
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @Transactional
     public ClientDocument archiveDoc(Long idDOc , Utilisateur admin  ){
     	ClientDocument doc = documentRepository.findById(idDOc)

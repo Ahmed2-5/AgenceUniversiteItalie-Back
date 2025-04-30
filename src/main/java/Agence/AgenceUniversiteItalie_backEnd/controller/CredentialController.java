@@ -52,7 +52,8 @@ public class CredentialController {
         }
     }
 
-    //Changement houni zeda
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
+
     @PostMapping("/createCredential/{clientId}")
     public ResponseEntity<Credential> createCredential(@PathVariable Long clientId, @RequestBody Credential credential,
                                                        Authentication authentication) {
@@ -67,11 +68,13 @@ public class CredentialController {
         }
     }
 
-    //Changement houni zeda
+    ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @PutMapping("/{credentialId}")
     public ResponseEntity<Credential> updateCredential(@PathVariable Long credentialId, @RequestBody Credential credentialDetails,@RequestParam String updatedByEmail) {
         try {
-            Credential updatedCredential = credentialService.updateCredential(credentialId, credentialDetails,updatedByEmail);
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(updatedByEmail)
+                    .orElseThrow(()-> new EntityNotFoundException("Admin not found"));
+            Credential updatedCredential = credentialService.updateCredential(credentialId, credentialDetails,updatedByEmail,admin);
             return new ResponseEntity<>(updatedCredential, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
