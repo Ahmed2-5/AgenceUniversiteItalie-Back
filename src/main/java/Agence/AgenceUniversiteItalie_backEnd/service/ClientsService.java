@@ -2,10 +2,7 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.*;
-import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
-import Agence.AgenceUniversiteItalie_backEnd.repository.CredentialRepository;
-import Agence.AgenceUniversiteItalie_backEnd.repository.TacheRepository;
-import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +28,12 @@ public class ClientsService {
     @Autowired
     private TacheRepository tacheRepository;
 
+    @Autowired
+    private LogActionRepository logActionRepository;
+
+    @Autowired
+    private LogActionService logActionService;
+
     /**
      *
      * @param clients
@@ -39,7 +42,7 @@ public class ClientsService {
      *
      */
     @Transactional
-    public Clients clientsCreated(Clients clients, String adminEmail,String adminAssignedTunisie){
+    public Clients clientsCreated(Clients clients, String adminEmail,String adminAssignedTunisie , Utilisateur admin){
 
         Utilisateur createur = utilisateurRepository.findByAdresseMail(adminEmail)
                 .orElseThrow(()-> new EntityNotFoundException("SuperAdmin or Admin with this email" +adminEmail+"is not found"));
@@ -51,21 +54,30 @@ public class ClientsService {
        Utilisateur adminTunisie = utilisateurRepository.findByAdresseMail(adminAssignedTunisie)
                        .orElseThrow(()-> new EntityNotFoundException("Admin not found with this adressMail"+adminAssignedTunisie));
 
-     //  Utilisateur adminItalie = utilisateurRepository.findByAdresseMail(adminAssignedItalie)
-     //          .orElseThrow(()-> new EntityNotFoundException("admin italie not found"+ adminAssignedItalie));
-
        Credential emptyCredential = new Credential();
        emptyCredential.setProgrammeEtude(clients.getProgrammedEtude());
        credentialRepository.save(emptyCredential); 
 
        clients.setClientCreatedby(createur);
        clients.setAssignedToTunisie(adminTunisie);
-      // clients.setAssignedToItalie(adminItalie);
        clients.setCredential(emptyCredential);
-
        emptyCredential.setClients(clients);
        Clients savedClient = clientsRepository.save(clients);
        createAutomaticTaskForClient(savedClient,adminTunisie,createur);
+
+
+       /*
+       hedhi mrigla khater deja mawjoud howa
+        */
+       logActionService.ajouterLog(
+               "Création client",
+               "nouveau client créé:" + clients.getNomClient()+ " " + clients.getPrenomClient(),
+               "Client",
+               savedClient.getIdClients(),
+               admin
+       );
+
+
        return savedClient;
     }
 
@@ -100,10 +112,12 @@ public class ClientsService {
      * @return Updating the Clients Details
      */
     @Transactional
-    public Clients updateClient(Clients clientDetails ,Long idClient){
+    public Clients updateClient(Clients clientDetails ,Long idClient  , Utilisateur admin){
 
         Clients clients = clientsRepository.findById(idClient)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"client not found"));
+
+
 
         clients.setNomClient(clientDetails.getNomClient());
         clients.setPrenomClient((clientDetails.getPrenomClient()));
@@ -121,7 +135,22 @@ public class ClientsService {
         if(clientDetails.getAssignedToTunisie() !=null){ clients.setAssignedToTunisie(clientDetails.getAssignedToTunisie());}
         if (clientDetails.getAssignedToItalie() != null){clients.setAssignedToItalie(clientDetails.getAssignedToItalie());}
         clients.getCredential().setProgrammeEtude(clientDetails.getProgrammedEtude());
-        return clientsRepository.save(clients);
+        // return clientsRepository.save(clients);
+
+        Clients clientMisAJour = clientsRepository.save(clients);
+
+        logActionService.ajouterLog(
+                "Modification du client",
+                "Modification du client" + clients.getNomClient()+ " " + clients.getPrenomClient(),
+                "client",
+                idClient,
+                admin
+        );
+        return clientMisAJour;
+
+
+
+
     }
 
     /**
@@ -178,7 +207,7 @@ public class ClientsService {
      * @return archiver un clients
      */
     @Transactional
-    public Clients archiveClient(Long idClient){
+    public Clients archiveClient(Long idClient  , Utilisateur admin ){
         Clients client = clientsRepository.findById(idClient)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"ce Client est n'est pas trouver"));
 
@@ -187,7 +216,24 @@ public class ClientsService {
         }
 
         client.setArchive(Archive.ARCHIVER);
-        return clientsRepository.save(client);
+
+
+       // return clientsRepository.save(client);
+
+
+       Clients clientArchiver = clientsRepository.save(client);
+
+        logActionService.ajouterLog(
+                "Archiver Client",
+                "Archivage du client" + client.getNomClient()+" " +client.getPrenomClient(),
+                "client",
+                idClient,
+                admin
+        );
+
+        return clientArchiver;
+
+
     }
 
     /**
@@ -275,6 +321,7 @@ public class ClientsService {
 
         client.setAssignedToItalie(admin);
         return clientsRepository.save(client);
+
     }
 
     @Transactional

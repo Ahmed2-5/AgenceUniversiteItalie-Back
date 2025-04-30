@@ -34,25 +34,56 @@ public class PaiementService {
     private EmailService emailService;
     @Autowired
     private UtilisateurRepository utilisateurRepository;
+    @Autowired
+    private LogActionService logActionService;
 
 
     @Transactional
-    public Payement creerPayment(Clients client , BigDecimal montant , int nombreTranches){
+    public Payement creerPayment(Clients client , BigDecimal montant , int nombreTranches , Utilisateur admin ){
         if (nombreTranches<1 || nombreTranches>5){
             throw new IllegalArgumentException("Nombre de tranches invalide");
         }
         Payement payement = new Payement(client, montant);
         payement.diviserEnTranche(nombreTranches);
 
-        return paymentRepository.save(payement);
+        //return paymentRepository.save(payement);
+
+
+        Payement savedPayement = paymentRepository.save(payement);
+
+        logActionService.ajouterLog(
+                "Creation paiement",
+                "Paiement créé pour le client :" + client.getNomClient() + " " + client.getPrenomClient() +
+                        " - Montant: " + montant + " - Nombre de tranches: " + nombreTranches,
+                "paiement",
+                savedPayement.getIdPayement(),
+                admin
+
+        );
+
+        return savedPayement;
     }
 
     @Transactional
-    public void reglerTranche(Long idTranche){
+    public void reglerTranche(Long idTranche , Utilisateur admin ){
         Tranche tranche = trancheRepository.findById(idTranche).orElseThrow(()-> new RuntimeException("Tranche non trouver "));
+
+        Payement payement = tranche.getPayement();
+        Clients clients = payement.getClient();
+        int numeroTranche = tranche.getNumero();
+        BigDecimal montantTranche = tranche.getMontant();
 
         tranche.marquerCommePayer();
         trancheRepository.save(tranche);
+
+        logActionService.ajouterLog(
+                "Réglement tranche",
+                "Tranche" + numeroTranche + " réglée pour le client : " + clients.getNomClient() + " " + clients.getPrenomClient() + " -Montant: " + montantTranche,
+                "Paiement",
+                idTranche,
+                admin
+        );
+
     }
 
 

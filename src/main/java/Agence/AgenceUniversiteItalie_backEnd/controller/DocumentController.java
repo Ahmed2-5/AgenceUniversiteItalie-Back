@@ -2,6 +2,8 @@ package Agence.AgenceUniversiteItalie_backEnd.controller;
 
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.ClientDocument;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
+import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import Agence.AgenceUniversiteItalie_backEnd.service.DocumentService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,17 +29,23 @@ public class DocumentController {
 
     @Autowired
     private DocumentService documentService ;
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
 
-
+//// hedhi zeda
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ClientDocument> uploadDocument(
             @RequestParam("file")MultipartFile file,
             @RequestParam("nom") String nom,
             @RequestParam("idClient") Long idClient,
-            @RequestParam("idUtilisateur") Long idUtilisateur){
+            @RequestParam("idUtilisateur") Long idUtilisateur,
+            Authentication authentication){
         try {
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
             return new ResponseEntity<>(
-                    documentService.uploadDocument(file,nom,idClient,idUtilisateur),
+                    documentService.uploadDocument(file,nom,idClient,idUtilisateur,admin),
                     HttpStatus.CREATED);
         }catch (EntityNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,e.getMessage());
@@ -67,9 +76,13 @@ public class DocumentController {
 
     @PatchMapping("rename/{idDocument}")
     public ResponseEntity<ClientDocument> renameDocument(@PathVariable Long idDocument,
-                                                   @RequestParam String nouveauNom){
+                                                   @RequestParam String nouveauNom,
+                                                         Authentication authentication){
         try {
-            return ResponseEntity.ok(documentService.updateDocument(idDocument,nouveauNom));
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+            return ResponseEntity.ok(documentService.updateDocument(idDocument,nouveauNom,admin));
         }catch (EntityNotFoundException e){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
@@ -133,9 +146,13 @@ public class DocumentController {
 
 
     @PutMapping("/{idDOc}/archive")
-    public ResponseEntity<?> archiverDoc(@PathVariable Long idDOc){
+    public ResponseEntity<?> archiverDoc(@PathVariable Long idDOc,
+                                         Authentication authentication){
         try {
-            return ResponseEntity.ok(documentService.archiveDoc(idDOc));
+            String email = authentication.getName();
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+            return ResponseEntity.ok(documentService.archiveDoc(idDOc,admin));
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
