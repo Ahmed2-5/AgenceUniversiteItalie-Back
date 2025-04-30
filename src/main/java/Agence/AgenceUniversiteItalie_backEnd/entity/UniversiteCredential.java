@@ -21,6 +21,8 @@ public class UniversiteCredential {
     private String emailUniversite;
     private String passwordUniversite;
 
+    private EnumCommunication communication = EnumCommunication.PAS_ENCORE;
+    private String communicationDescripton;
 
     @ManyToOne
     @JoinColumn(name = "credential_id")

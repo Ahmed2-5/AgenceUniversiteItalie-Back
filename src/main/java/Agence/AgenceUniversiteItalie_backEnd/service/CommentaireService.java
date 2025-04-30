@@ -3,9 +3,11 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.Commentaire;
 import Agence.AgenceUniversiteItalie_backEnd.entity.EnumRole;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Notification;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Tache;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
 import Agence.AgenceUniversiteItalie_backEnd.repository.CommentaireRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.NotificationRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.TacheRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,6 +29,9 @@ public class CommentaireService {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
 
+    @Autowired
+    private NotificationRepository notifrep;
+    
     // Add a comment to a task
     public Commentaire addCommentToTache(Long tacheId, String contenu, String userEmail) {
         Utilisateur utilisateur = utilisateurRepository.findByAdresseMail(userEmail)
@@ -43,7 +49,7 @@ public class CommentaireService {
                 tache.getCreatedBy().getIdUtilisateur().equals(utilisateur.getIdUtilisateur());
 
         // Condition for admin Italie a ajouter
-        if (!isAssignedAdmin && !isSuperAdmin ) {
+        if (!isAssignedAdmin && !isSuperAdmin && !isAssignedAdminItalie) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User not authorized to comment on this task");
         }
 
@@ -52,8 +58,24 @@ public class CommentaireService {
         commentaire.setUtilisateur(utilisateur);
         commentaire.setTache(tache);
 
-        return commentaireRepository.save(commentaire);
-    }
+        Commentaire savedComment = commentaireRepository.save(commentaire);
+
+        for (Utilisateur admin : tache.getAssignedAdmins()) {
+            Notification notif = new Notification();
+            notif.setNotifLib("Nouveau commentaire sur la tâche");
+            notif.setTypeNotif("TASK");
+            notif.setUserId(admin.getIdUtilisateur()); // Notify this admin
+            notif.setCreatedby(utilisateur.getIdUtilisateur()); // The one who commented
+            notif.setMessage("Un nouveau commentaire a été ajouté à la tâche : " + tache.getTitre() + " par " +
+                             utilisateur.getPrenom() + " " + utilisateur.getNom());
+            notif.setNotificationDate(LocalDateTime.now());
+            notif.setReaded(false);
+
+            notifrep.save(notif);
+        }
+
+
+        return savedComment;    }
 
     /**
      *

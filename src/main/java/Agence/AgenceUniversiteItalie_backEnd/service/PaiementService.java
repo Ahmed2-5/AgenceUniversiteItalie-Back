@@ -3,6 +3,7 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.*;
 import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
+import Agence.AgenceUniversiteItalie_backEnd.repository.NotificationRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.PaymentRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.TrancheRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,6 +33,9 @@ public class PaiementService {
     private ClientsRepository clientsRepository;
 
     @Autowired
+    private NotificationRepository notifrep;
+    
+    @Autowired
     private EmailService emailService;
     @Autowired
     private UtilisateurRepository utilisateurRepository;
@@ -39,34 +44,93 @@ public class PaiementService {
 
 
     @Transactional
-    public Payement creerPayment(Clients client , BigDecimal montant , int nombreTranches , Utilisateur admin ){
-        if (nombreTranches<1 || nombreTranches>5){
+    public Payement creerPayment(Clients client, BigDecimal montant, int nombreTranches) {
+        if (nombreTranches < 1 || nombreTranches > 5) {
+ 
             throw new IllegalArgumentException("Nombre de tranches invalide");
         }
+
         Payement payement = new Payement(client, montant);
         payement.diviserEnTranche(nombreTranches);
 
-        //return paymentRepository.save(payement);
+        Payement savedPayment = paymentRepository.save(payement);
 
+        // ✅ Send notification to Super Admin
+        Utilisateur superAdmin = utilisateurRepository.findById(1L).get();
 
-        Payement savedPayement = paymentRepository.save(payement);
+        if (superAdmin != null) {
+            Notification notif = new Notification();
+            notif.setNotifLib("Nouveau paiement créé");
+            notif.setTypeNotif("PAYMENT");
+            notif.setUserId(superAdmin.getIdUtilisateur());
+            notif.setCreatedby(client.getClientCreatedby().getIdUtilisateur());
+            notif.setMessage("Un paiement a été enregistré pour le client: " + client.getPrenomClient() + " "+ client.getNomClient());
+            notif.setNotificationDate(LocalDateTime.now());
+            notif.setReaded(false);
 
-        logActionService.ajouterLog(
-                "Creation paiement",
-                "Paiement créé pour le client :" + client.getNomClient() + " " + client.getPrenomClient() +
-                        " - Montant: " + montant + " - Nombre de tranches: " + nombreTranches,
-                "paiement",
-                savedPayement.getIdPayement(),
-                admin
+            notifrep.save(notif);
+        }
 
-        );
+        return savedPayment;
 
-        return savedPayement;
     }
 
+    
     @Transactional
-    public void reglerTranche(Long idTranche , Utilisateur admin ){
-        Tranche tranche = trancheRepository.findById(idTranche).orElseThrow(()-> new RuntimeException("Tranche non trouver "));
+    public void ajouterTrancheToPayement(Long idPayement, Tranche tranche) {
+        Payement payement = paymentRepository.findById(idPayement)
+                .orElseThrow(() -> new RuntimeException("Payement not found"));
+
+        // Get the dateLimite of the last tranche and add 1 month
+        LocalDate lastDateLimite = payement.getTranches().stream()
+                .map(Tranche::getDateLimite)
+                .max(LocalDate::compareTo)
+                .orElse(LocalDate.now());
+
+        tranche.setDateLimite(lastDateLimite.plusMonths(1));
+        tranche.setPayement(payement);
+        tranche.setNumero(payement.getTranches().size() + 1);
+        tranche.setStatusTranche(StatusTranche.EN_ATTENTE);
+
+        payement.getTranches().add(tranche);
+        
+     // Update the total amount (montantaTotal) using BigDecimal
+        BigDecimal totalAmount = payement.getTranches().stream()
+                .map(Tranche::getMontant)  // Keep it as BigDecimal
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // Sum all amounts of tranches
+
+        payement.setMontantaTotal(totalAmount);
+        
+        payement.mettreAJourLeReste();
+
+        trancheRepository.save(tranche);
+        paymentRepository.save(payement);
+        
+     // ✅ Send Notification to Super Admin (ID: 1)
+        Utilisateur superAdmin = utilisateurRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Super admin not found"));
+
+        String clientFullName = payement.getClient().getPrenomClient() + " " +
+                                payement.getClient().getNomClient();
+
+        Notification notif = new Notification();
+        notif.setNotifLib("Nouvelle tranche ajoutée");
+        notif.setTypeNotif("PAYMENT");
+        notif.setUserId(superAdmin.getIdUtilisateur());
+        notif.setCreatedby(tranche.getPayement().getClient().getAssignedToTunisie().getIdUtilisateur()); // Optional: set creator if needed
+        notif.setMessage("Une nouvelle tranche a été ajoutée pour le client " + clientFullName +
+                         ", ID payement: " + payement.getIdPayement()+".");
+        notif.setNotificationDate(LocalDateTime.now());
+        notif.setReaded(false);
+
+        notifrep.save(notif);
+    }
+
+
+    @Transactional
+    public void reglerTranche(Long idTranche) {
+        Tranche tranche = trancheRepository.findById(idTranche)
+                .orElseThrow(() -> new RuntimeException("Tranche non trouvée"));
 
         Payement payement = tranche.getPayement();
         Clients clients = payement.getClient();
@@ -74,17 +138,31 @@ public class PaiementService {
         BigDecimal montantTranche = tranche.getMontant();
 
         tranche.marquerCommePayer();
+        tranche.setMontantFixe(true);
+
         trancheRepository.save(tranche);
 
-        logActionService.ajouterLog(
-                "Réglement tranche",
-                "Tranche" + numeroTranche + " réglée pour le client : " + clients.getNomClient() + " " + clients.getPrenomClient() + " -Montant: " + montantTranche,
-                "Paiement",
-                idTranche,
-                admin
-        );
+        Utilisateur superAdmin = utilisateurRepository.findById(1L).get();
+
+        String clientFullName = tranche.getPayement().getClient().getPrenomClient() + " " +
+                tranche.getPayement().getClient().getNomClient();
+        
+        if (superAdmin != null) {
+            Notification notif = new Notification();
+            notif.setNotifLib("Tranche payée");
+            notif.setTypeNotif("PAYMENT");
+            notif.setUserId(superAdmin.getIdUtilisateur());
+            notif.setCreatedby(tranche.getPayement().getClient().getAssignedToTunisie().getIdUtilisateur()); // Optional: set the user who triggered this if available
+            notif.setMessage("Une tranche a été payée pour le client " + clientFullName +
+                    ", ID tranche: " + tranche.getIdTranche()+", ID payement: " + tranche.getPayement().getIdPayement()+".");
+            notif.setNotificationDate(LocalDateTime.now());
+            notif.setReaded(false);
+
+            notifrep.save(notif);
+        }
 
     }
+
 
 
     // only for admin Tunisie
@@ -201,6 +279,12 @@ public class PaiementService {
             trancheRepository.deleteAll(tranchesToDelete);
             payement.getTranches().removeAll(tranchesToDelete); // optional but keeps object model clean
         }
+        
+     // ✅ Recalculate and update montantaTotal
+        BigDecimal nouveauMontantTotal = payement.getTranches().stream()
+                .map(Tranche::getMontant)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        payement.setMontantaTotal(nouveauMontantTotal);
         
         payement.mettreAJourLeReste();
         paymentRepository.save(payement);

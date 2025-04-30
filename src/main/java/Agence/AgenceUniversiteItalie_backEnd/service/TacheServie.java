@@ -3,8 +3,10 @@ package Agence.AgenceUniversiteItalie_backEnd.service;
 
 import Agence.AgenceUniversiteItalie_backEnd.entity.EnumRole;
 import Agence.AgenceUniversiteItalie_backEnd.entity.EnumStatutTache;
+import Agence.AgenceUniversiteItalie_backEnd.entity.Notification;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Tache;
 import Agence.AgenceUniversiteItalie_backEnd.entity.Utilisateur;
+import Agence.AgenceUniversiteItalie_backEnd.repository.NotificationRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.TacheRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
 
@@ -28,6 +30,9 @@ public class TacheServie {
 
     @Autowired
     private  UtilisateurRepository utilisateurRepository;
+
+    @Autowired
+    private NotificationRepository notifrep;
 
 
     public TacheServie(TacheRepository tacheRepository, UtilisateurRepository utilisateurRepository) {
@@ -104,15 +109,32 @@ public class TacheServie {
         }
 
         for (Utilisateur admin : adminList) {
-            if (!admin.getRole().getLibelleRole().equals(EnumRole.ADMIN_TUNISIE)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with ID is not an admin");
-            }
+        	if (!(admin.getRole().getLibelleRole().equals(EnumRole.ADMIN_TUNISIE) ||
+        		      admin.getRole().getLibelleRole().equals(EnumRole.ADMIN_ITALIE))) {
+        		    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with ID is not an admin");
+        		}
+
 
         }
 
         tache.setAssignedAdmins(new HashSet<>(adminList));
+        Tache savedTask = tacheRepository.save(tache);
 
-        return tacheRepository.save(tache);
+        // ✅ Create notifications for assigned admins
+        for (Utilisateur admin : adminList) {
+            Notification notif = new Notification();
+            notif.setNotifLib("New Task Assigned");
+            notif.setTypeNotif("TASK");
+            notif.setUserId(admin.getIdUtilisateur());
+            notif.setCreatedby(superAdmin.getIdUtilisateur());
+            notif.setMessage("You have been assigned to a new task by Super Admin.");
+            notif.setNotificationDate(LocalDateTime.now());
+            notif.setReaded(false);
+
+            notifrep.save(notif);
+        }
+
+        return savedTask;
     }
 
 

@@ -69,13 +69,9 @@ public class CredentialController {
 
     //Changement houni zeda
     @PutMapping("/{credentialId}")
-    public ResponseEntity<Credential> updateCredential(@PathVariable Long credentialId, @RequestBody Credential credentialDetails,
-                                                       Authentication authentication) {
+    public ResponseEntity<Credential> updateCredential(@PathVariable Long credentialId, @RequestBody Credential credentialDetails,@RequestParam String updatedByEmail) {
         try {
-            String email = authentication.getName();
-            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
-                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
-            Credential updatedCredential = credentialService.updateCredential(credentialId, credentialDetails,admin);
+            Credential updatedCredential = credentialService.updateCredential(credentialId, credentialDetails,updatedByEmail);
             return new ResponseEntity<>(updatedCredential, HttpStatus.OK);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

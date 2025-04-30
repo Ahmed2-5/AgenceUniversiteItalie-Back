@@ -215,15 +215,24 @@ public class UtilisateurService {
         System.out.println("Date de derniere Connexion mise a jour :" +utilisateur.getDateDerniereConnexion());
     }
     
-	public Utilisateur updateUtilisateurByIdu(Utilisateur user, long iduser) {
-		Utilisateur usr = utilisateurRepository.findById(iduser).get();
-		usr.setAdresseMail(user.getAdresseMail());
-		usr.setNom(user.getNom());
-		usr.setPrenom(user.getPrenom());
-		usr.setTelephone(user.getTelephone());
-		usr.setRole(user.getRole());
-		return utilisateurRepository.save(usr);
-	}
+    public Utilisateur updateUtilisateurByIdu(Utilisateur user, long iduser) {
+        Utilisateur usr = utilisateurRepository.findById(iduser).get();
+
+        usr.setAdresseMail(user.getAdresseMail());
+        usr.setNom(user.getNom());
+        usr.setPrenom(user.getPrenom());
+        usr.setTelephone(user.getTelephone());
+
+        // Dynamically get the role from incoming user
+        EnumRole incomingRoleEnum = user.getRole().getLibelleRole();
+        Role role = roleRepository.findByLibelleRole(incomingRoleEnum)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + incomingRoleEnum));
+        usr.setRole(role);
+
+        return utilisateurRepository.save(usr);
+    }
+
+
 	
     public Optional<Role> getRoleByLibelleRole(EnumRole libelleRole){return roleRepository.findByLibelleRole(libelleRole);}
 

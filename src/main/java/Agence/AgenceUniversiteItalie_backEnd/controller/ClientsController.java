@@ -68,13 +68,8 @@ public class ClientsController {
     @PutMapping(value = "/UpdateClients/{idClient}")
     public Clients updateClient(@RequestBody Clients clientDetails,
                                 @PathVariable Long idClient,
-                                Authentication authentication){
-
-        String email = authentication.getName();
-        Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
-                .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
-
-        return clientsService.updateClient(clientDetails,idClient,admin);
+                                @RequestParam String updatedByEmail){
+        return clientsService.updateClient(clientDetails,idClient,updatedByEmail);
     }
 
     @DeleteMapping("/deleteClient/{idC}")
@@ -255,6 +250,14 @@ public class ClientsController {
         return clientsService.removeClientFromAdminItalie(clientId, adminEmail);
     }
 
+    @PostMapping("/{clientId}/updateassign-tunisie")
+    public Clients UpdateAssignClientToAdminTunisie(
+            @PathVariable Long clientId,
+            @RequestParam String adminEmail,
+            @RequestParam String superadminEmail
+            ) {
+        return clientsService.UpdateAssignClientToAdminTunisie(clientId, adminEmail,superadminEmail);
+    }
 
 
 }
