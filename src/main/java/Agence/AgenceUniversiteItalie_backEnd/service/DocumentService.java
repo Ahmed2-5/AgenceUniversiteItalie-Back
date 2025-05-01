@@ -123,6 +123,8 @@ public class DocumentService {
         ClientDocument document = documentRepository.findById(idDoc)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "le document n'est pas trouver"));
 
+        String ancienNom = document.getNom();
+
         // Extract extension from the current file name
         String extension = "";
         if (document.getNom().contains(".")) {
@@ -135,18 +137,19 @@ public class DocumentService {
         }
 
         document.setNom(nouveauNom);
-        //return documentRepository.save(document);
 
 
       ClientDocument documentMisAjour = documentRepository.save(document);
 
-        logActionService.ajouterLog(
-                "Modification Document",
-                "document modifier Pour "+ document.getClientDocument().getNomClient(),
-                "document",
-                idDoc,
-                admin
-        );
+   // Log the change with old and new name
+      logActionService.ajouterLog(
+          "Modification Document",
+          "Nom du document modifié de '" + ancienNom + "' à '" + nouveauNom +
+              "' pour le client: " + document.getClientDocument().getPrenomClient()+" "+document.getClientDocument().getNomClient(),
+          "document",
+          idDoc,
+          admin
+      );
 
         return documentMisAjour;
 
@@ -221,13 +224,13 @@ public class DocumentService {
 
       ClientDocument documentArchiver = documentRepository.save(doc);
 
-        logActionService.ajouterLog(
-                "Archiver Document",
-                "document Archiver Pour  "+ doc.getClientDocument().getNomClient(),
-                "document",
-                idDOc,
-                admin
-        );
+      logActionService.ajouterLog(
+              "Archivage Document",
+              "Le document '" + doc.getNom() + "' du client : " + doc.getClientDocument().getPrenomClient()+" "+ doc.getClientDocument().getNomClient() + " a été archivé.",
+              "document",
+              idDOc,
+              admin
+      );
 
         return documentArchiver;
 

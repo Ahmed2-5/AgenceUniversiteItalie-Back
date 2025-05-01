@@ -56,12 +56,10 @@ public class CredentialController {
 
     @PostMapping("/createCredential/{clientId}")
     public ResponseEntity<Credential> createCredential(@PathVariable Long clientId, @RequestBody Credential credential,
-                                                       Authentication authentication) {
+                                                       @RequestParam String authEmail) {
         try {
-            String email = authentication.getName();
-            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
-                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
-            Credential newCredential = credentialService.createCredential(clientId, credential,admin);
+            
+            Credential newCredential = credentialService.createCredential(clientId, credential,authEmail);
             return new ResponseEntity<>(newCredential, HttpStatus.CREATED);
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

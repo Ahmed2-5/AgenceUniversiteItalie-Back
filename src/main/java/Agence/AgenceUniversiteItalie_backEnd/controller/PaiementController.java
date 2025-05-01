@@ -35,27 +35,20 @@ public class PaiementController {
 
     ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @PostMapping("/ajouterPayment")
-    public ResponseEntity<Payement> creePaiement(@RequestBody Map<String, Object> request, Authentication authentication){
+    public ResponseEntity<Payement> creePaiement(@RequestBody Map<String, Object> request,@RequestParam String authEmail){
         try {
             Long clientId = Long.valueOf(request.get("clientId").toString());
             BigDecimal montant = new BigDecimal(request.get("montant").toString());
             int nombreTranche = Integer.parseInt(request.get("nombreTranches").toString());
 
-            String email = authentication.getName();
-            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
-                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
-
-
-
             Clients clients = clientsRepository.findById(clientId).orElseThrow(()-> new RuntimeException("Client non trouver"));
 
-            Payement payement = paiementService.creerPayment(clients, montant, nombreTranche,admin);
+            Payement payement = paiementService.creerPayment(clients, montant, nombreTranche,authEmail);
             return ResponseEntity.status(HttpStatus.CREATED).body(payement);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-
     @PostMapping("/{idPayement}/add-tranche-manual")
     public ResponseEntity<String> ajouterTrancheManuellement(
             @PathVariable Long idPayement,
@@ -90,12 +83,9 @@ public class PaiementController {
     ///////////////////////////Modification houni /////////////////////////////////////////////////////
 
     @PostMapping("/Tranches/{trancheId}/payer")
-    public ResponseEntity<Void> payerTranche(@PathVariable Long trancheId, Authentication authentication){
+    public ResponseEntity<Void> payerTranche(@PathVariable Long trancheId, @RequestParam String authEmail){
         try {
-            String email = authentication.getName();
-            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
-                    .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
-            paiementService.reglerTranche(trancheId,admin);
+            paiementService.reglerTranche(trancheId,authEmail);
             return ResponseEntity.ok().build();
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
