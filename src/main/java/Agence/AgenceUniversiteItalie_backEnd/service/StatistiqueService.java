@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,4 +60,54 @@ public class StatistiqueService {
                         r -> (BigDecimal) r[1]
                 ));
     }
+
+    public Map<LocalDate, BigDecimal> montantAttenduParJour() {
+        return trancheRepository.getMontantAttenduParJour().stream()
+                .collect(Collectors.toMap(
+                        r -> (LocalDate) r[0],
+                        r -> (BigDecimal) r[1]
+                ));
+    }
+
+    public Map<Integer, BigDecimal> montantAttenduParSemaine() {
+        return trancheRepository.getMontantAttenduParSemaine().stream()
+                .collect(Collectors.toMap(
+                        r -> ((Number) r[0]).intValue(),
+                        r -> (BigDecimal) r[1]
+                ));
+    }
+
+    public Map<Integer, BigDecimal> montantAttenduParMois() {
+        return trancheRepository.getMontantAttenduParMois().stream()
+                .collect(Collectors.toMap(
+                        r -> ((Number) r[0]).intValue(),
+                        r -> (BigDecimal) r[1]
+                ));
+    }
+
+    public Map<Integer, Map<String, BigDecimal>> comparaisonParMois() {
+        Map<Integer, BigDecimal> recu = montantRecuParMois();
+        Map<Integer, BigDecimal> attendu = montantAttenduParMois();
+
+        Set<Integer> tousLesMois = new HashSet<>();
+        tousLesMois.addAll(recu.keySet());
+        tousLesMois.addAll(attendu.keySet());
+
+        Map<Integer, Map<String, BigDecimal>> resultat = new HashMap<>();
+
+        for (Integer mois : tousLesMois) {
+            BigDecimal montantRecu = recu.getOrDefault(mois, BigDecimal.ZERO);
+            BigDecimal montantAttendu = attendu.getOrDefault(mois, BigDecimal.ZERO);
+
+            Map<String, BigDecimal> comparaison = new HashMap<>();
+            comparaison.put("recu", montantRecu);
+            comparaison.put("attendu", montantAttendu);
+
+            resultat.put(mois, comparaison);
+        }
+
+        return resultat;
+    }
+
+
 }

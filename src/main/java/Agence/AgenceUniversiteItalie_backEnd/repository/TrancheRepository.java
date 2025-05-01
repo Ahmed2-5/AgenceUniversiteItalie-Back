@@ -43,6 +43,27 @@ public interface TrancheRepository extends JpaRepository<Tranche, Long> {
             "WHERE t.statusTranche = 'PAYEE' " +
             "GROUP BY CONCAT(u.prenom, ' ', u.nom)")
     List<Object[]> getMontantTotalRecuParAdmin();
+
+    @Query("SELECT DATE(t.dateLimite), SUM(t.montant) " +
+            "FROM Tranche t " +
+            "WHERE (t.statusTranche = 'EN_ATTENTE' OR t.statusTranche = 'EN_RETARD') " +
+            "GROUP BY DATE(t.dateLimite) " +
+            "ORDER BY DATE(t.dateLimite)")
+    List<Object[]> getMontantAttenduParJour();
+
+
+    @Query("SELECT FUNCTION('WEEK', t.dateLimite), SUM(t.montant) " +
+            "FROM Tranche t " +
+            "WHERE (t.statusTranche = 'EN_ATTENTE' OR t.statusTranche = 'EN_RETARD') " +
+            "GROUP BY FUNCTION('WEEK', t.dateLimite)")
+    List<Object[]> getMontantAttenduParSemaine();
+
+
+    @Query("SELECT MONTH(t.dateLimite), SUM(t.montant) " +
+            "FROM Tranche t " +
+            "WHERE (t.statusTranche = 'EN_ATTENTE' OR t.statusTranche = 'EN_RETARD') " +
+            "GROUP BY MONTH(t.dateLimite)")
+    List<Object[]> getMontantAttenduParMois();
 }
 
 

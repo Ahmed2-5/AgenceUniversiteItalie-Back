@@ -42,4 +42,25 @@ public class StatistiqueController {
     public Map<String, BigDecimal> montantRecuParAdmin() {
         return statistiqueService.montantTotalRecuParAdmin();
     }
+
+    @GetMapping("/attendu/jour")
+    public Map<LocalDate, BigDecimal> montantAttenduParJour() {
+        return statistiqueService.montantAttenduParJour();
+    }
+
+    @GetMapping("/attendu/semaine")
+    public Map<Integer, BigDecimal> montantAttenduParSemaine() {
+        return statistiqueService.montantAttenduParSemaine();
+    }
+
+    @GetMapping("/attendu/mois")
+    public Map<Integer, BigDecimal> montantAttenduParMois() {
+        return statistiqueService.montantAttenduParMois();
+    }
+
+    @GetMapping("/comparaison/mois")
+    public Map<Integer, Map<String, BigDecimal>> comparaisonRecuEtAttenduParMois() {
+        return statistiqueService.comparaisonParMois();
+    }
+
 }
