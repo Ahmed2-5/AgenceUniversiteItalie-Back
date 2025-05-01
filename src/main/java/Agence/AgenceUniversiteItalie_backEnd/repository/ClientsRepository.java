@@ -28,4 +28,10 @@ public interface ClientsRepository extends JpaRepository<Clients, Long> {
 
     @Query("SELECT client FROM Clients client WHERE LOWER(client.nomClient) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(client.prenomClient) LIKE LOWER(CONCAT('%', :searchTerm, '%')) ")
     List<Clients> searchClients(String searchTerm);
+
+    @Query("SELECT CONCAT(u.prenom, ' ', u.nom), COUNT(c) " +
+            "FROM Clients c " +
+            "JOIN c.assignedToTunisie u " +
+            "GROUP BY CONCAT(u.prenom, ' ', u.nom)")
+    List<Object[]> getNombreClientsParAdmin();
 }
