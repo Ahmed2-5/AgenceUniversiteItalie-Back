@@ -105,7 +105,7 @@ public class ClientsService {
         */
        logActionService.ajouterLog(
                "Création client",
-               "nouveau client créé:" + clients.getNomClient()+ " " + clients.getPrenomClient(),
+               "nouveau client créé : " + clients.getNomClient()+ " " + clients.getPrenomClient(),
                "Client",
                savedClient.getIdClients(),
                admin
@@ -311,7 +311,7 @@ public class ClientsService {
 
         logActionService.ajouterLog(
                 "Archiver Client",
-                "Archivage du client" + client.getNomClient()+" " +client.getPrenomClient(),
+                "Archivage du client " + client.getNomClient()+" " +client.getPrenomClient(),
                 "client",
                 idClient,
                 admin

@@ -158,11 +158,9 @@ public class ClientsController {
 ///////////////////////////////// Hedhi sar fiha Modification ////////////////////////////////////////////////
     @PutMapping("/{idClient}/archive")
     public ResponseEntity<?> archiverClient(@PathVariable Long idClient,
-                                            //zedet hedhi
-                                            Authentication authentication){
+                                          @RequestParam  String authEmail){
         try {
-            String email = authentication.getName();
-            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(authEmail)
                     .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
             return ResponseEntity.ok(clientsService.archiveClient(idClient, admin));
         }catch (Exception e){

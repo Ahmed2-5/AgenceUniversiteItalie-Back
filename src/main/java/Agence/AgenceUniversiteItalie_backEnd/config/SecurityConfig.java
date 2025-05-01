@@ -116,7 +116,8 @@ public class SecurityConfig {
                             "/api/RDV/deleteRdvCredential/**",
                             "/api/RDV/getRDVById/**",
                             "/api/RDV/updateRDV/**",
-                            "/api/RDV/RDVs/**"
+                            "/api/RDV/RDVs/**",
+                            "/api/logs/getAllLogs"
 
                     ).permitAll()
                     .anyRequest().authenticated()

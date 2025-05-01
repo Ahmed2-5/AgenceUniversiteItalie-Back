@@ -7,6 +7,8 @@ import Agence.AgenceUniversiteItalie_backEnd.repository.NotificationRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.PaymentRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.TrancheRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -44,7 +46,7 @@ public class PaiementService {
 
     ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @Transactional
-    public Payement creerPayment(Clients client, BigDecimal montant, int nombreTranches, Utilisateur admin) {
+    public Payement creerPayment(Clients client, BigDecimal montant, int nombreTranches, String authAdmin) {
         if (nombreTranches < 1 || nombreTranches > 5) {
  
             throw new IllegalArgumentException("Nombre de tranches invalide");
@@ -71,9 +73,11 @@ public class PaiementService {
             notifrep.save(notif);
         }
 
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(authAdmin)
+                .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
         logActionService.ajouterLog(
                 "Creation paiement",
-                "Paiement créé pour le client :" + client.getNomClient() + " " + client.getPrenomClient() +
+                "Paiement créé pour le client : " + client.getNomClient() + " " + client.getPrenomClient() +
                         " - Montant: " + montant + " - Nombre de tranches: " + nombreTranches,
                 "paiement",
                 savedPayment.getIdPayement(),
@@ -138,7 +142,7 @@ public class PaiementService {
 
     ///////////////////////////Modification houni /////////////////////////////////////////////////////
     @Transactional
-    public void reglerTranche(Long idTranche, Utilisateur admin) {
+    public void reglerTranche(Long idTranche, String authAdmin) {
         Tranche tranche = trancheRepository.findById(idTranche)
                 .orElseThrow(() -> new RuntimeException("Tranche non trouvée"));
 
@@ -171,9 +175,12 @@ public class PaiementService {
             notifrep.save(notif);
         }
 
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(authAdmin)
+                .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
+        
         logActionService.ajouterLog(
                 "Réglement tranche",
-                "Tranche" + numeroTranche + " réglée pour le client : " + clients.getNomClient() + " " + clients.getPrenomClient() + " -Montant: " + montantTranche,
+                "Tranche" + numeroTranche + " payée pour le client : " + clients.getNomClient() + " " + clients.getPrenomClient() + " -Montant: " + montantTranche,
                 "Paiement",
                 idTranche,
                 admin

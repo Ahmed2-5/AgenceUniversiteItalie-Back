@@ -39,10 +39,9 @@ public class DocumentController {
             @RequestParam("nom") String nom,
             @RequestParam("idClient") Long idClient,
             @RequestParam("idUtilisateur") Long idUtilisateur,
-            Authentication authentication){
+            @RequestParam("authEmail") String authEmail){
         try {
-            String email = authentication.getName();
-            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(authEmail)
                     .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
             return new ResponseEntity<>(
                     documentService.uploadDocument(file,nom,idClient,idUtilisateur,admin),
@@ -78,10 +77,9 @@ public class DocumentController {
     @PatchMapping("rename/{idDocument}")
     public ResponseEntity<ClientDocument> renameDocument(@PathVariable Long idDocument,
                                                    @RequestParam String nouveauNom,
-                                                         Authentication authentication){
+                                                   @RequestParam String authEmail){
         try {
-            String email = authentication.getName();
-            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(authEmail)
                     .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
             return ResponseEntity.ok(documentService.updateDocument(idDocument,nouveauNom,admin));
         }catch (EntityNotFoundException e){
@@ -149,10 +147,9 @@ public class DocumentController {
 
     @PutMapping("/{idDOc}/archive")
     public ResponseEntity<?> archiverDoc(@PathVariable Long idDOc,
-                                         Authentication authentication){
+                                         @RequestParam String authEmail){
         try {
-            String email = authentication.getName();
-            Utilisateur admin = utilisateurRepository.findByAdresseMail(email)
+            Utilisateur admin = utilisateurRepository.findByAdresseMail(authEmail)
                     .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
             return ResponseEntity.ok(documentService.archiveDoc(idDOc,admin));
         }catch (Exception e){

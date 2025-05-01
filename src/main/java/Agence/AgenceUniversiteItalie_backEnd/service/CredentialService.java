@@ -10,6 +10,7 @@ import Agence.AgenceUniversiteItalie_backEnd.repository.ClientsRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.CredentialRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.NotificationRepository;
 import Agence.AgenceUniversiteItalie_backEnd.repository.UtilisateurRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class CredentialService {
     }
 
     @Transactional
-    public Credential createCredential(Long clientId, Credential credential  , Utilisateur admin) {
+    public Credential createCredential(Long clientId, Credential credential  , String AuthAdmin) {
 
         Clients clients = clientsRepository.findById(clientId).orElseThrow(()-> new RuntimeException("Client not found"));
 
@@ -64,9 +65,11 @@ public class CredentialService {
         Credential savedCredential = credentialRepository.save(credential);
         clientsRepository.save(clients);
 
+        Utilisateur admin = utilisateurRepository.findByAdresseMail(AuthAdmin)
+                .orElseThrow(()-> new EntityNotFoundException("Utilisateur"));
        logActionService.ajouterLog(
              "Ajouter Credential for client",
-             "Ajout du Credential pour le client" + clients.getNomClient()+ " " + clients.getPrenomClient(),
+             "Ajout Credential pour le client " + clients.getNomClient()+ " " + clients.getPrenomClient(),
              "credential",
              savedCredential.getIdCredential(),
              admin
@@ -126,7 +129,7 @@ public class CredentialService {
 
         logActionService.ajouterLog(
                 "Ajouter Credential for client",
-                "Ajout du Credential pour le client" + credential.getClients().getNomClient()+ " " + credential.getClients().getPrenomClient(),
+                "Mise à jour Credential pour le client " + credential.getClients().getNomClient()+ " " + credential.getClients().getPrenomClient(),
                 "credential",
                 updatedCredential.getIdCredential(),
                 admin
