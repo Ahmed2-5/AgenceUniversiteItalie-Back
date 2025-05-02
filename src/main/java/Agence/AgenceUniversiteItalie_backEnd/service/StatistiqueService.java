@@ -24,10 +24,11 @@ public class StatistiqueService {
     public Map<LocalDate, BigDecimal> montantRecuParJour() {
         return trancheRepository.getMontantRecuParJour().stream()
                 .collect(Collectors.toMap(
-                        r -> (LocalDate) r[0],
+                        r -> ((java.sql.Date) r[0]).toLocalDate(), // ✅ conversion explicite
                         r -> (BigDecimal) r[1]
                 ));
     }
+
 
     public Map<Integer, BigDecimal> montantRecuParSemaine() {
         return trancheRepository.getMontantRecuParSemaine().stream()
@@ -64,10 +65,11 @@ public class StatistiqueService {
     public Map<LocalDate, BigDecimal> montantAttenduParJour() {
         return trancheRepository.getMontantAttenduParJour().stream()
                 .collect(Collectors.toMap(
-                        r -> (LocalDate) r[0],
+                        r -> ((java.sql.Date) r[0]).toLocalDate(), // ✅ conversion explicite
                         r -> (BigDecimal) r[1]
                 ));
     }
+
 
     public Map<Integer, BigDecimal> montantAttenduParSemaine() {
         return trancheRepository.getMontantAttenduParSemaine().stream()
