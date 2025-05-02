@@ -30,6 +30,9 @@ public class Credential {
     private String prenotami;
     private String passwordPrenotami;
 
+    private String universitaly;
+    private String passwordUniversitaly;
+    
     private String programmeEtude;
 
     @Enumerated(EnumType.STRING)

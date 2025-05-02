@@ -156,7 +156,7 @@ public class TacheServie {
         Utilisateur admin = utilisateurRepository.findByAdresseMail(adminEmail)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Admin not found"));
 
-        if (admin.getRole().getLibelleRole() != EnumRole.ADMIN_TUNISIE){
+        if (admin.getRole().getLibelleRole() != EnumRole.ADMIN_TUNISIE && admin.getRole().getLibelleRole() != EnumRole.ADMIN_ITALIE){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"User is not an admin");
         }
 

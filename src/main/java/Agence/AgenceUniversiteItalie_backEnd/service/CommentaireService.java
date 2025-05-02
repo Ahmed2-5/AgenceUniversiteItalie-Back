@@ -59,7 +59,7 @@ public class CommentaireService {
         commentaire.setTache(tache);
 
         Commentaire savedComment = commentaireRepository.save(commentaire);
-
+        if(isSuperAdmin) {
         for (Utilisateur admin : tache.getAssignedAdmins()) {
             Notification notif = new Notification();
             notif.setNotifLib("Nouveau commentaire sur la tâche");
@@ -73,7 +73,22 @@ public class CommentaireService {
 
             notifrep.save(notif);
         }
+        }else if(!isSuperAdmin) {
+        
+        Utilisateur superAdmin = utilisateurRepository.findById(1L).get();
 
+        Notification notif1 = new Notification();
+        notif1.setNotifLib("Nouveau commentaire sur la tâche");
+        notif1.setTypeNotif("TASK");
+        notif1.setUserId(superAdmin.getIdUtilisateur()); // Notify this admin
+        notif1.setCreatedby(utilisateur.getIdUtilisateur()); // The one who commented
+        notif1.setMessage("Un nouveau commentaire a été ajouté à la tâche : " + tache.getTitre() + " par " +
+                         utilisateur.getPrenom() + " " + utilisateur.getNom());
+        notif1.setNotificationDate(LocalDateTime.now());
+        notif1.setReaded(false);
+
+        notifrep.save(notif1);
+        }
 
         return savedComment;    }
 

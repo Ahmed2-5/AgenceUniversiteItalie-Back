@@ -95,6 +95,8 @@ public class CredentialService {
         credential.setPasswrodGmail(credentialDetails.getPasswrodGmail());
         credential.setPrenotami(credentialDetails.getPrenotami());
         credential.setPasswordPrenotami(credentialDetails.getPasswordPrenotami());
+        credential.setPasswordUniversitaly(credentialDetails.getPasswordUniversitaly());
+        credential.setUniversitaly(credentialDetails.getUniversitaly());
         credential.setProgrammeEtude(credentialDetails.getProgrammeEtude());
         credential.setPreInscrit(credentialDetails.getPreInscrit());
 
