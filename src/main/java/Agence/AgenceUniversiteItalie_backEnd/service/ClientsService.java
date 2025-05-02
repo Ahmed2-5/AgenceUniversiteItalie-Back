@@ -120,7 +120,7 @@ public class ClientsService {
         task.setTitre("Tâche à faire pour le client '" + client.getNomClient() + " " + client.getPrenomClient() + "'");
 
         StringBuilder description = new StringBuilder();
-        description.append("* Création mail, création compte prenotami et aussi compte université Italie pour ")
+        description.append("* Création mail, création compte prenotami et aussi compte universitaly pour ")
                    .append(client.getNomClient()).append(" ").append(client.getPrenomClient())
                    .append("<br>") // HTML line break
                    .append("- mail: ").append(client.getEmailClient())
