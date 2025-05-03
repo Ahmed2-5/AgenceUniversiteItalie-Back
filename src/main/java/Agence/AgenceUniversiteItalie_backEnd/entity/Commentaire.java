@@ -28,7 +28,7 @@ public class Commentaire {
     @ManyToOne
     @JoinColumn(name = "utilisateur_id", nullable = false)
     private Utilisateur utilisateur;
-
+    
     public Commentaire(String contenu, Tache tache, Utilisateur utilisateur) {
         this.contenu = contenu;
         this.tache = tache;

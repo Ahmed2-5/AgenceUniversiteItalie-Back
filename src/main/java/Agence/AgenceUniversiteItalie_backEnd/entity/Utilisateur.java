@@ -92,6 +92,10 @@ public class Utilisateur {
     @JsonIgnore
     private List<LogAction> logActions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "utilisateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Set<CommentaireCredential> credentialCommentaires = new HashSet<>();
+    
     // ajout d'un constructeur
     public Utilisateur(String nom, String prenom, String adresseMail, String motDePasse, Role role) {
         this.nom = nom;
