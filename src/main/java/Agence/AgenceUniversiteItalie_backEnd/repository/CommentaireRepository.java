@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface CommentaireRepository extends JpaRepository<Commentaire, Long> {
 
-	List<Commentaire> findByTacheOrderByDateCreationCommentaire(Tache tache);
+    List<Commentaire> findByTacheOrderByDateCreationCommentaire(Tache tache);
+
 }

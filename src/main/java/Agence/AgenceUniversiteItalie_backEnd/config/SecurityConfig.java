@@ -118,7 +118,10 @@ public class SecurityConfig {
                             "/api/RDV/updateRDV/**",
                             "/api/RDV/RDVs/**",
                             "/api/logs/getAllLogs",
-                            "/api/statistiques/**"
+                            "/api/statistiques/**",
+                            "/api/commentaireCredential/addCommentaire",
+                            "/api/commentaireCredential/credential/**",
+                            "/api/commentaireCredential/**"
 
                     ).permitAll()
                     .anyRequest().authenticated()
