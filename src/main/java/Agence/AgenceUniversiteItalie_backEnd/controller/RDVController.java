@@ -18,7 +18,11 @@ import Agence.AgenceUniversiteItalie_backEnd.service.RDVService;
 
 @RestController
 @RequestMapping("/api/RDV")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200",
+		"http://universiteitalie.com",
+		"https://universiteitalie.com",
+		"http://www.universiteitalie.com",
+		"https://www.universiteitalie.com"})
 public class RDVController {
 
 	 @Autowired

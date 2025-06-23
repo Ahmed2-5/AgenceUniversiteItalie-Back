@@ -31,7 +31,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/Clients")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200",
+        "http://universiteitalie.com",
+        "https://universiteitalie.com",
+        "http://www.universiteitalie.com",
+        "https://www.universiteitalie.com"})
 public class ClientsController {
 
     @Autowired
