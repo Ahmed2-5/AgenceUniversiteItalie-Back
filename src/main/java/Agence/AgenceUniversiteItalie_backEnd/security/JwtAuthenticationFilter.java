@@ -32,16 +32,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
         this.utilisateurRepository = utilisateurRepository;
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        String requestURI= request.getRequestURI();
+        String requestURI = request.getRequestURI();
         System.out.println("Requête interceptée : " + requestURI);
 
-        if(requestURI.contains("/api/utilisateurs/login")){
-            System.out.println("Bypass du filter JWT pour /login");
+        // ✅ Skip filtering for login and register
+        if (requestURI.equals("/api/utilisateurs/login") || requestURI.equals("/api/utilisateurs/register")) {
+            System.out.println("Bypass du filtre JWT pour " + requestURI);
             chain.doFilter(request, response);
             return;
         }
@@ -55,25 +55,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             username = jwtUtil.extractUsername(jwt);
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
             Optional<Utilisateur> utilisateurOpt = utilisateurRepository.findByAdresseMail(username);
-            if(utilisateurOpt.isEmpty()){
+
+            if (utilisateurOpt.isEmpty()) {
                 chain.doFilter(request, response);
                 return;
             }
 
             Utilisateur utilisateur = utilisateurOpt.get();
-            if(jwtUtil.validateToken(jwt, utilisateur)){
+
+            if (jwtUtil.validateToken(jwt, utilisateur)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, Collections.singleton(new SimpleGrantedAuthority("ROLE_"+utilisateur.getRole().getLibelleRole().name())));
+                        userDetails,
+                        null,
+                        Collections.singleton(new SimpleGrantedAuthority("ROLE_" + utilisateur.getRole().getLibelleRole().name()))
+                );
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
 
         chain.doFilter(request, response);
-
     }
+
 
 }

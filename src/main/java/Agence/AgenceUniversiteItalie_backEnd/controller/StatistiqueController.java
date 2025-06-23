@@ -15,7 +15,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/statistiques")
-@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", methods = {})
+@CrossOrigin(origins = {"http://localhost:4200",
+        "http://universiteitalie.com",
+        "https://universiteitalie.com",
+        "http://www.universiteitalie.com",
+        "https://www.universiteitalie.com"}, allowedHeaders = "*", methods = {})
 public class StatistiqueController {
 
     @Autowired

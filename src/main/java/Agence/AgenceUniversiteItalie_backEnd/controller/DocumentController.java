@@ -24,7 +24,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/documents")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200",
+        "http://universiteitalie.com",
+        "https://universiteitalie.com",
+        "http://www.universiteitalie.com",
+        "https://www.universiteitalie.com"})
 public class DocumentController {
 
     @Autowired
